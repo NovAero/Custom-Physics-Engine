@@ -40,6 +40,10 @@ public:
 	RigidBody& GetRigidBody() const;
 	Collider& GetCollider() const;
 
+private:
+
+	void SetColliderByEnum(ObjectShape shape);
+
 protected:
 	RigidBody* rb = nullptr;
 	Collider* collider = nullptr;

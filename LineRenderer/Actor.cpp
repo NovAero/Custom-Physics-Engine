@@ -21,14 +21,7 @@ Actor::Actor(Vec2 pos, ObjectShape shape, Vec2 drawSize)
 	rb->parent = this;
 	rb->objectSize = drawSize/2;
 
-	switch (shape) {
-	case CIRCLE:
-		collider = new CircleCollider(actorPosition, drawSize.y/2, drawSize.y);
-		break;
-	case SQUARE:
-		collider = new BoxCollider(actorPosition, drawSize, 0.f);
-		break;
-	}
+	SetColliderByEnum(shape);
 
 	collider->parent = this;
 }
@@ -125,4 +118,40 @@ RigidBody& Actor::GetRigidBody() const
 Collider& Actor::GetCollider() const
 {
 	return *collider;
+}
+
+void Actor::SetColliderByEnum(ObjectShape shape)
+{
+	switch (shape) {
+	case CIRCLE:
+		collider = new CircleCollider(actorPosition, drawSize.y / 2, drawSize.y);
+		break;
+
+	case SQUARE:
+		collider = new BoxCollider(actorPosition, drawSize, 0.f);
+		break;
+
+	case TRIANGLE:
+	{
+		std::vector<Vec2> temp;
+
+		temp.push_back(Vec2(actorPosition.x - drawSize.x / 2, actorPosition.y - drawSize.y / 2));
+		temp.push_back(Vec2(actorPosition.x, actorPosition.y + drawSize.y / 2));
+		temp.push_back(Vec2(actorPosition.x + drawSize.x / 2, actorPosition.y + drawSize.y / 2));
+
+		collider = new PolygonCollider(actorPosition, temp, 0.f);
+		break;
+	}
+	case LINE:
+	{
+		std::vector<Vec2> temp;
+		temp.push_back(Vec2(actorPosition.x - drawSize.x / 2, actorPosition.y));
+		temp.push_back(Vec2(actorPosition.x + drawSize.x / 2, actorPosition.y));
+
+		drawSize.y = 0.1f;
+
+		collider = new PolygonCollider(actorPosition, temp, 0.f);
+		break;
+	}
+	}
 }

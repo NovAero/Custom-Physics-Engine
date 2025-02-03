@@ -64,3 +64,46 @@ CollisionInfo CircleToPolyCollision(CircleCollider* a, PolygonCollider* b)
 
 	return info;
 }
+
+CollisionInfo PolyToPolyCollision(PolygonCollider* a, PolygonCollider* b)
+{
+	CollisionInfo info;
+	info.colliderA = a;
+	info.colliderB = b;
+
+	BoxCollider* boxA = dynamic_cast<BoxCollider*>(a);
+	BoxCollider* boxB = dynamic_cast<BoxCollider*>(b);
+
+	if (boxA != nullptr && boxB != nullptr) {
+		info = BoxToBoxCollision(boxA, boxB);
+		return info;
+	}
+	else {
+		boxA = nullptr;
+		boxB = nullptr;
+	}
+
+	Vec2 closestV2ToA, closestV2ToB;
+	std::vector<Vec2> aPts = a->GetPoints();
+	std::vector<Vec2> bPts = b->GetPoints();
+
+	//Check closest to centre of B
+	for (int i = 0; i < a->GetPoints().size(); ++i) {
+		if ((aPts[i] - b->position).GetMagnitudeSquared() < (closestV2ToB - b->position).GetMagnitudeSquared()) {
+			closestV2ToB = aPts[i];
+		}
+	}
+
+	//Check closest to centre of A
+	for (int j = 0; j < b->GetPoints().size(); ++j) {
+		if ((bPts[j] - a->position).GetMagnitudeSquared() < (closestV2ToA - a->position).GetMagnitudeSquared()) {
+			closestV2ToA = bPts[j];
+		}
+	}
+
+	//Get direction FROM a TO B, and the depth between the two closest vertices
+	info.collisionNormal = (closestV2ToB - closestV2ToA).GetNormalised();
+	info.overlapAmount = (closestV2ToB - closestV2ToA).GetMagnitude();
+
+	return info;
+}
