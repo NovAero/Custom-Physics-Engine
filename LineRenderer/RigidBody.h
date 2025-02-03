@@ -2,34 +2,22 @@
 #include "Maths.h"
 #include "LineRenderer.h"
 
-const int GRAVITY = 0.098f;
+class Actor;
 
-enum ObjectShape
-{
-	CIRCLE,
-	SQUARE,
-	TRIANGLE,
-	LINE,
-	VOID
-};
+const int GRAVITY = 0.098f;
 
 class RigidBody {
 public:
-	RigidBody() = default;
-	
+	RigidBody();
 	//Dynamic Constructors
-	RigidBody(Vec2 position);
-	RigidBody(Vec2 position, ObjectShape shape);
-	RigidBody(Vec2 position, ObjectShape shape, Colour colour);
-	RigidBody(Vec2 position, ObjectShape shape, Colour colour, Vec2 size);
-	RigidBody(Vec2 position, float drag, float friction);
-	RigidBody(Vec2 position, ObjectShape shape, Colour colour, float drag, float friction);
-	RigidBody(Vec2 position, ObjectShape shape, Colour colour, float drag, float friction, Vec2 size);
+	RigidBody(Actor* parent);
+	RigidBody(Actor* parent, Vec2 size);
+	RigidBody(Actor* parent, float drag, float friction);
+	RigidBody(Actor* parent, float drag, float friction, Vec2 size);
 	
-	~RigidBody() = default;
+	~RigidBody();
 
 	virtual void Update(float delta, Vec2 cursorPos);
-	virtual void Draw(LineRenderer* lines);
 
 	void ApplyImpulse(Vec2 direction, float magnitude);
 	void ApplyConstantForce(Vec2 direction, float magnitude, float& timer, float& currentTime, float delta);
@@ -42,29 +30,31 @@ public:
 	bool GetIsGrounded() const { return isGrounded; }
 	bool GetIsDirty()const { return isDirty; }
 	Vec2 GetSize() const { return objectSize; }
-	Vec2 GetCurrentPosition() const { return currentPosition; }
+	float GetCurrentSpeed() const { return currentSpeed; }
 	Vec2 GetCurrentVelocity() const { return currentVelocity; }
 	float GetTerminalVelocity() const { return maxMagnitude; }
 
 	void SetIsDirty(bool dirty) { isDirty = dirty; }
 
 protected:
+
+	Actor* parent = nullptr;
 	
-	ObjectShape shape = ObjectShape::VOID;
 	Colour colour = Colour::WHITE;
 
-	Vec2 currentPosition;
-	Vec2 currentVelocity;
+	Vec2 currentVelocity = { 0,0 };
 	Vec2 objectSize = { 1.f, 1.f };
 
-	float maxMagnitude = 15.f;
+	float maxMagnitude = 10.f;
 	
-	float currentSpeed = 0.f;
+	float currentSpeed = 1.0f;
 	float gravity = 0.098f;
 	float drag = 0.7f;
-	float friction = 0.5f;
+	float friction = 0.65f;
 
 	bool isGrounded = true;
 	bool bounce = true;
 	bool isDirty = false;
+
+	friend class Actor;
 };

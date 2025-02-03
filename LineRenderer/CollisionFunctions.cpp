@@ -1,17 +1,27 @@
 #include "CollisionFunctions.h"
 #include "Collider.h"
 
-CollisionInfo GetCircleOverlapAmount(CircleCollider& a, CircleCollider& b)
+CollisionInfo GetCircleOverlapAmount(CircleCollider* a, CircleCollider* b)
 {
 	CollisionInfo info;
-	info.colliderA = &a;
-	info.colliderB = &b;
-	Vec2 centreDisplacement = b.position - a.position;
+	info.colliderA = a;
+	info.colliderB = b;
+	Vec2 centreDisplacement = b->position - a->position;
 	float distance = centreDisplacement.GetMagnitude();
-	float separationOfSurfaces = distance - a.radius - b.radius;
+	float separationOfSurfaces = distance - a->radius - b->radius;
 	info.overlapAmount = -separationOfSurfaces;
 
 	info.collisionNormal = centreDisplacement / distance;
 
 	return info;
+}
+
+CollisionInfo BoxtoBoxCollision(BoxCollider& a, BoxCollider& b)
+{
+	CollisionInfo info;
+	info.colliderA = &a;
+	info.colliderB = &b;
+
+
+	return CollisionInfo();
 }

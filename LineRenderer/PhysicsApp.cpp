@@ -3,6 +3,8 @@
 #include "Key.h"
 #include "RigidBody.h"
 #include "Grid.h"
+#include "CollisionFunctions.h"
+#include "Collision.h"
 
 PhysicsApp::PhysicsApp()
 {
@@ -14,40 +16,68 @@ PhysicsApp::~PhysicsApp()
 	if (player != nullptr) {
 		delete player;
 	}
+	objects.clear();
 }
 
 void PhysicsApp::Initialise()
 {
-	player = new RigidBody(Vec2{ 0,0.5f }, TRIANGLE, Colour::GREEN, 0.7f, 0.8f, Vec2{ 2.f,2.f });
+	player = new Actor(Vec2{ 1.7,1.7 }, ObjectShape::CIRCLE, Vec2{2.f,2.f});
+
+	objects.push_back(player);
+
+	for (int i = 1; i < 6; ++i) {
+		objects.push_back(new Actor(Vec2{1.f, (float)(i * 2)}, CIRCLE, Vec2(i, i)));
+	}
+	for (int i = 1; i < 6; ++i) {
+		objects.push_back(new Actor(Vec2{ 10.f, (float)(i * 2) }, CIRCLE, Vec2(i, i)));
+	}
 }
 
 void PhysicsApp::Update(float delta)
 {
+	collisions.clear();
+
+	for (int i = 0; i < objects.size(); i++)
+	{
+		for (int j = i + 1; j < objects.size(); j++)
+		{
+			CollisionInfo thisHit = GetCircleOverlapAmount(&objects[i]->GetCollider(), &objects[j]->GetCollider());
+			if (thisHit.IsOverlapping()) collisions.push_back(thisHit);
+		}
+	}
+	for (CollisionInfo& thisInfo : collisions)
+	{
+		thisInfo.Resolve();
+	}
+
+	for (int i = 0; i < objects.size(); ++i) {
+		objects[i]->Update(delta, cursorPos);
+	}
+
+	//Draw line and set magnitude for launch
+	if (rightMouseDown && player->GetWorldPosition().y > -10.0f) {
+		float DistanceToCur = (player->GetWorldPosition() - cursorPos).GetMagnitude();
+
+		launchMagnitude = DistanceToCur >= player->GetRigidBody().GetTerminalVelocity() ? player->GetRigidBody().GetTerminalVelocity() : (player->GetWorldPosition() - cursorPos).GetMagnitude();
+		lines->DrawLineWithArrow(player->GetWorldPosition(), player->GetWorldPosition() + (Vec2(player->GetWorldPosition() - cursorPos).Normalise()) * launchMagnitude, Colour::RED);
+	}
+	else if(rightMouseDown && player->GetWorldPosition().y <= -10.0f) {
+		float DistanceToCur = (player->GetWorldPosition() - cursorPos).GetMagnitude();
+
+		launchMagnitude = DistanceToCur >= player->GetRigidBody().GetTerminalVelocity() ? player->GetRigidBody().GetTerminalVelocity() : (player->GetWorldPosition() - cursorPos).GetMagnitude();
+		lines->DrawLineWithArrow(Vec2{ player->GetWorldPosition().x ,-10.0f }, Vec2{ player->GetWorldPosition().x, -10.0f } + (Vec2(player->GetWorldPosition() - cursorPos).Normalise()) * launchMagnitude, Colour::RED);
+	}
 	
-	player->Update(delta, cursorPos);
-
-	if (rightMouseDown && player->GetCurrentPosition().y > -10.0f) {
-		float DistanceToCur = (player->GetCurrentPosition() - cursorPos).GetMagnitude();
-
-		launchMagnitude = DistanceToCur >= player->GetTerminalVelocity() ? player->GetTerminalVelocity() : (player->GetCurrentPosition() - cursorPos).GetMagnitude();
-		lines->DrawLineWithArrow(player->GetCurrentPosition(), player->GetCurrentPosition() + (Vec2(player->GetCurrentPosition() - cursorPos).Normalise()) * launchMagnitude, Colour::RED);
+	for (int i = 0; i < objects.size(); ++i){
+		objects[i]->Draw(lines);
 	}
-	else if(rightMouseDown && player->GetCurrentPosition().y <= -10.0f) {
-		float DistanceToCur = (player->GetCurrentPosition() - cursorPos).GetMagnitude();
-
-		launchMagnitude = DistanceToCur >= player->GetTerminalVelocity() ? player->GetTerminalVelocity() : (player->GetCurrentPosition() - cursorPos).GetMagnitude();
-		
-		lines->DrawLineWithArrow(Vec2{ player->GetCurrentPosition().x ,-10.0f }, Vec2{ player->GetCurrentPosition().x, -10.0f } + (Vec2(player->GetCurrentPosition() - cursorPos).Normalise()) * launchMagnitude, Colour::RED);
-	}
-
-	player->Draw(lines);
 }
 
 void PhysicsApp::OnLeftClick()
 {
-	player->SetPosition(cursorPos);
-	player->SetVelocity(Vec2{ 0,0 });
-	player->SetIsDirty(false);
+	player->GetRigidBody().SetPosition(cursorPos);
+	player->GetRigidBody().SetVelocity(Vec2{ 0,0 });
+	player->GetRigidBody().SetIsDirty(false);
 }
 
 void PhysicsApp::OnRightClick()
@@ -58,10 +88,10 @@ void PhysicsApp::OnRightClick()
 
 void PhysicsApp::OnRightRelease()
 {
-	Vec2 Direction = player->GetCurrentPosition() - cursorPos;
+	Vec2 Direction = player->GetWorldPosition() - cursorPos;
 	Direction.Normalise();
 
-	player->ApplyImpulse(Direction, launchMagnitude);
+	player->GetRigidBody().ApplyImpulse(Direction, launchMagnitude);
 
 	rightMouseDown = false;
 

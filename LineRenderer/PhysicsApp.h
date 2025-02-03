@@ -3,15 +3,19 @@
 #include "Application.h"
 #include "Maths.h"
 #include <vector>
+#include "Actor.h"
 
-class RigidBody;
+class CollisionInfo;
 
 class PhysicsApp: public Application
 {
 private:
 	//Any data that should persist for the duration of your program,
 	//declare it here.
-	RigidBody* player = nullptr;
+	Actor* player = nullptr;
+
+	std::vector<Actor*> objects;
+	std::vector<CollisionInfo> collisions;
 
 	float launchMagnitude = 1.0f;
 

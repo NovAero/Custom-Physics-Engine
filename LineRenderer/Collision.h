@@ -9,8 +9,8 @@ public:
 	void Resolve();
 
 public:
-	Collider* colliderA;
-	Collider* colliderB;
+	Collider* colliderA = nullptr;
+	Collider* colliderB = nullptr;
 
 	float overlapAmount = -1.f;
 	Vec2 collisionNormal;//Points FROM a TO b

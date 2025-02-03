@@ -68,13 +68,24 @@
     <ClCompile Include="Box.cpp">
       <Filter>Game\PhysicsGame</Filter>
     </ClCompile>
-    <ClCompile Include="Scene.cpp" />
     <ClCompile Include="Grid.cpp">
       <Filter>Game\PhysicsGame</Filter>
     </ClCompile>
-    <ClCompile Include="Collision.cpp" />
-    <ClCompile Include="CollisionFunctions.cpp" />
-    <ClCompile Include="Collider.cpp" />
+    <ClCompile Include="Collider.cpp">
+      <Filter>Game\PhysicsGame</Filter>
+    </ClCompile>
+    <ClCompile Include="Actor.cpp">
+      <Filter>Game\PhysicsGame</Filter>
+    </ClCompile>
+    <ClCompile Include="Collision.cpp">
+      <Filter>Game\PhysicsGame</Filter>
+    </ClCompile>
+    <ClCompile Include="CollisionFunctions.cpp">
+      <Filter>Game\PhysicsGame</Filter>
+    </ClCompile>
+    <ClCompile Include="Scene.cpp">
+      <Filter>Game\PhysicsGame</Filter>
+    </ClCompile>
   </ItemGroup>
   <ItemGroup>
     <ClInclude Include="GLFWCallbacks.h">

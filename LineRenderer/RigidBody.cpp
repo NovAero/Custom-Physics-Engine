@@ -1,54 +1,33 @@
 #include "RigidBody.h"
+#include "Actor.h"
 
-RigidBody::RigidBody(Vec2 position) : currentPosition(position)
+RigidBody::RigidBody()
+{
+	parent = nullptr;
+}
+
+RigidBody::RigidBody(Actor* parent) : parent(parent)
 {
 
 }
 
-RigidBody::RigidBody(Vec2 position, ObjectShape shape) : currentPosition(position), shape(shape)
+RigidBody::RigidBody(Actor* parent, Vec2 size) : parent(parent), objectSize(size)
+{
+
+}
+
+RigidBody::RigidBody(Actor* parent, float drag, float friction) : parent(parent), drag(drag), friction(friction)
 {
 }
 
-RigidBody::RigidBody(Vec2 position, ObjectShape shape, Colour colour) : currentPosition(position), shape(shape), colour(colour)
+RigidBody::RigidBody(Actor* parent, float drag, float friction, Vec2 size) : parent(parent), drag(drag), friction(friction), objectSize(size)
 {
 }
 
-RigidBody::RigidBody(Vec2 position, ObjectShape shape, Colour colour, Vec2 size) : RigidBody(position, shape, colour)
+RigidBody::~RigidBody()
 {
-	if (shape == CIRCLE) {
-		objectSize = Vec2{ 0.f, size.y };
-	}
-	else if (shape == LINE) {
-		objectSize = Vec2{ size.x, 0.1f };
-	} else {
-		objectSize = size;
-	}
+	parent = nullptr;
 }
-
-RigidBody::RigidBody(Vec2 position, float drag, float friction) : currentPosition(position), drag(drag), friction(friction)
-{
-}
-
-RigidBody::RigidBody(Vec2 position, ObjectShape shape, Colour colour, float drag, float friction) : currentPosition(position), shape(shape), colour(colour), drag(drag), friction(friction)
-{
-}
-
-RigidBody::RigidBody(Vec2 position, ObjectShape shape, Colour colour, float drag, float friction, Vec2 size) : RigidBody(position, shape, colour, drag, friction)
-{
-	if (shape == CIRCLE) {
-		objectSize = Vec2{ 0.f, size.y };
-	}
-	else if (shape == LINE) {
-		objectSize = Vec2{ size.x, 0.1f };
-	}
-	else {
-		objectSize = size;
-	}
-}
-
-
-
-
 
 void RigidBody::Update(float delta, Vec2 cursorPos)
 { 
@@ -56,16 +35,16 @@ void RigidBody::Update(float delta, Vec2 cursorPos)
 		if (currentVelocity.GetMagnitude() >= maxMagnitude) {
 			currentVelocity.SetMagnitude(maxMagnitude);
 		}
-		currentPosition += currentVelocity * currentSpeed * delta;
+		parent->actorPosition += currentVelocity * currentSpeed * delta;
 	}
 
-	if (currentPosition.y <= -10.f + objectSize.y) {
+	if (parent->actorPosition.y <= -10.f + objectSize.y) {
 		if (bounce && currentVelocity.GetMagnitude() > 2.5f) {
-			currentPosition.y = -10.f + objectSize.y;
+			parent->actorPosition.y = -10.f + objectSize.y;
 			Bounce();
 		}
 		else {
-			currentPosition.y = -10.f + objectSize.y;
+			parent->actorPosition.y = -10.f + objectSize.y;
 			isGrounded = true;
 		}
 	}
@@ -75,42 +54,9 @@ void RigidBody::Update(float delta, Vec2 cursorPos)
 	HandleResistances(delta);
 }
 
-void RigidBody::Draw(LineRenderer* lines)
-{
-	switch (shape) {
-	case CIRCLE:
-		lines->DrawCircle(currentPosition, objectSize.y / 2, colour);
-		break;
-	case SQUARE:
-		//Bottom
-		lines->DrawLineSegment(Vec2{ currentPosition.x - (objectSize.x / 2), currentPosition.y - (objectSize.y / 2) }, Vec2{ currentPosition.x + (objectSize.x / 2), currentPosition.y - (objectSize.y / 2) }, colour);
-		//Left
-		lines->DrawLineSegment(Vec2{ currentPosition.x - (objectSize.x / 2), currentPosition.y - (objectSize.y / 2) }, Vec2{ currentPosition.x - (objectSize.x / 2), currentPosition.y + (objectSize.y / 2) }, colour);
-		//Top
-		lines->DrawLineSegment(Vec2{ currentPosition.x - (objectSize.x / 2), currentPosition.y + (objectSize.y / 2) }, Vec2{ currentPosition.x + (objectSize.x / 2), currentPosition.y + (objectSize.y / 2) }, colour);
-		//Right
-		lines->DrawLineSegment(Vec2{ currentPosition.x + (objectSize.x / 2), currentPosition.y + (objectSize.y / 2) }, Vec2{ currentPosition.x + (objectSize.x / 2), currentPosition.y - (objectSize.y / 2) }, colour);
-		break;
-	case TRIANGLE:
-		//Bottom
-		lines->DrawLineSegment(Vec2{ currentPosition.x - (objectSize.x / 2), currentPosition.y - (objectSize.y / 2) }, Vec2{ currentPosition.x + (objectSize.x / 2), currentPosition.y - (objectSize.y / 2) }, colour);
-		//Left
-		lines->DrawLineSegment(Vec2{ currentPosition.x - (objectSize.x / 2), currentPosition.y - (objectSize.y / 2) }, Vec2{ currentPosition.x, currentPosition.y + (objectSize.y / 2) }, colour);
-		//Right
-		lines->DrawLineSegment(Vec2{ currentPosition.x + (objectSize.x / 2), currentPosition.y - (objectSize.y / 2) }, Vec2{ currentPosition.x , currentPosition.y + (objectSize.y / 2) }, colour);
-		break;
-	case LINE:
-		//Single Line
-		lines->DrawLineSegment(Vec2{ currentPosition.x - (objectSize.x / 2), currentPosition.y}, Vec2{ currentPosition.x + (objectSize.x / 2), currentPosition.y }, colour);
-		break;
-	case VOID:
-		break;
-	}
-}
-
 void RigidBody::ApplyImpulse(Vec2 direction, float magnitude)
 {
-	currentVelocity = direction * magnitude;
+	currentVelocity += direction * magnitude;
 	SetIsDirty(true);
 }
 
@@ -147,7 +93,7 @@ void RigidBody::HandleResistances(float delta)
 		}
 	}
 
-	if (isGrounded == false) {
+	if (isGrounded == false && isDirty == true) {
 		currentVelocity.y -= gravity;
 	}
 
@@ -157,7 +103,7 @@ void RigidBody::HandleResistances(float delta)
 
 void RigidBody::SetPosition(Vec2 position)
 {
-	currentPosition = position;
+	parent->actorPosition = position;
 }
 
 void RigidBody::Bounce()
