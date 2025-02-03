@@ -7,7 +7,7 @@ Actor::Actor()
 {
 	rb = new RigidBody();
 	rb->parent = this;
-	collider = new CircleCollider(actorPosition, drawSize.y/2, drawSize.y);
+	collider = new Collider(0.f);
 	collider->parent = this;
 }
 
@@ -21,7 +21,15 @@ Actor::Actor(Vec2 pos, ObjectShape shape, Vec2 drawSize)
 	rb->parent = this;
 	rb->objectSize = drawSize/2;
 
-	collider = new CircleCollider(actorPosition, drawSize.y/2, drawSize.y);
+	switch (shape) {
+	case CIRCLE:
+		collider = new CircleCollider(actorPosition, drawSize.y/2, drawSize.y);
+		break;
+	case SQUARE:
+		collider = new BoxCollider(actorPosition, drawSize, 0.f);
+		break;
+	}
+
 	collider->parent = this;
 }
 
@@ -114,7 +122,7 @@ RigidBody& Actor::GetRigidBody() const
 	return *rb;
 }
 
-CircleCollider& Actor::GetCollider() const
+Collider& Actor::GetCollider() const
 {
 	return *collider;
 }

@@ -2,9 +2,9 @@
 #include "LineRenderer.h"
 #include "Key.h"
 #include "RigidBody.h"
-#include "Grid.h"
 #include "CollisionFunctions.h"
 #include "Collision.h"
+#include "Collider.h"
 
 PhysicsApp::PhysicsApp()
 {
@@ -41,8 +41,10 @@ void PhysicsApp::Update(float delta)
 	{
 		for (int j = i + 1; j < objects.size(); j++)
 		{
-			CollisionInfo thisHit = GetCircleOverlapAmount(&objects[i]->GetCollider(), &objects[j]->GetCollider());
-			if (thisHit.IsOverlapping()) collisions.push_back(thisHit);
+
+
+			//CollisionInfo thisHit 
+			//if (thisHit.IsOverlapping()) collisions.push_back(thisHit);
 		}
 	}
 	for (CollisionInfo& thisInfo : collisions)
@@ -71,6 +73,20 @@ void PhysicsApp::Update(float delta)
 	for (int i = 0; i < objects.size(); ++i){
 		objects[i]->Draw(lines);
 	}
+}
+
+void PhysicsApp::QueueCollision(Collider* a, Collider* b)
+{
+
+	CircleCollider* c = dynamic_cast<CircleCollider*>(a);
+	CircleCollider* d = dynamic_cast<CircleCollider*>(b);
+
+	if (c) {
+
+	}
+
+
+
 }
 
 void PhysicsApp::OnLeftClick()

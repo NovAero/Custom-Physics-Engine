@@ -38,11 +38,11 @@ public:
 
 	//Reference access
 	RigidBody& GetRigidBody() const;
-	CircleCollider& GetCollider() const;
+	Collider& GetCollider() const;
 
 protected:
 	RigidBody* rb = nullptr;
-	CircleCollider* collider = nullptr;
+	Collider* collider = nullptr;
 
 	ObjectShape shape = ObjectShape::CIRCLE;
 	Vec2 drawSize = { 1.f,1.f };

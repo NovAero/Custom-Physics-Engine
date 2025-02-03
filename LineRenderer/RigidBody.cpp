@@ -1,5 +1,6 @@
 #include "RigidBody.h"
 #include "Actor.h"
+#include "Collider.h"
 
 RigidBody::RigidBody()
 {
@@ -104,6 +105,7 @@ void RigidBody::HandleResistances(float delta)
 void RigidBody::SetPosition(Vec2 position)
 {
 	parent->actorPosition = position;
+	parent->GetCollider().position = position;
 }
 
 void RigidBody::Bounce()

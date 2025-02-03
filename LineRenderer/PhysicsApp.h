@@ -27,6 +27,8 @@ public:
 
 	void Update(float delta) override;
 
+	void QueueCollision(Collider* a, Collider* b);
+
 	void OnLeftClick() override;
 	void OnRightClick() override;
 	void OnRightRelease() override;

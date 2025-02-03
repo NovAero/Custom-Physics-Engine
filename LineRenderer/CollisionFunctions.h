@@ -4,7 +4,10 @@
 
 class CircleCollider;
 class BoxCollider;
+class PolygonCollider;
 
-CollisionInfo GetCircleOverlapAmount(CircleCollider* a, CircleCollider* b);
+CollisionInfo CircleToCircleCollision(CircleCollider* a, CircleCollider* b);
 
-CollisionInfo GetRectDepenetration(BoxCollider& a, BoxCollider& b);
+CollisionInfo BoxToBoxCollision(BoxCollider* a, BoxCollider* b);
+
+CollisionInfo CircleToPolyCollision(CircleCollider* a, PolygonCollider* b);
