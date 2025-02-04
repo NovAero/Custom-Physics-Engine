@@ -21,16 +21,20 @@ PhysicsApp::~PhysicsApp()
 
 void PhysicsApp::Initialise()
 {
-	player = new Actor(Vec2{ 1.7,1.7 }, ObjectShape::TRIANGLE, Vec2{2.f,2.f});
+	player = new Actor(Vec2{ 4,4 }, ObjectShape::SQUARE, Vec2{2.f,2.f});
+	player->colour = Colour::GREEN;
 
 	objects.push_back(player);
+	
+	Actor* box1 = new Actor(Vec2{ 5,5 }, ObjectShape::SQUARE, Vec2{ 2.f,2.f });
 
-	for (int i = 1; i < 6; ++i) {
-		objects.push_back(new Actor(Vec2{1.f, (float)(i * 2)}, CIRCLE, Vec2(i, i)));
-	}
-	for (int i = 1; i < 6; ++i) {
-		objects.push_back(new Actor(Vec2{ 10.f, (float)(i * 2) }, SQUARE, Vec2(i, i)));
-	}
+	objects.push_back(box1);
+
+	objects.push_back(new Actor(Vec2{ -5.f, 3.5f }, ObjectShape::CIRCLE, Vec2{ 5, 5 }));
+
+	objects[2]->GetRigidBody().ApplyImpulse(Vec2{ 0.f, 1.f }, 1);
+
+
 }
 
 void PhysicsApp::Update(float delta)
@@ -53,6 +57,11 @@ void PhysicsApp::Update(float delta)
 		objects[i]->Update(delta, cursorPos);
 	}
 
+
+	for (int i = 0; i < objects.size(); ++i) {
+		objects[i]->Draw(lines);
+	}
+
 	//Draw line and set magnitude for launch
 	if (rightMouseDown && player->GetWorldPosition().y > -10.0f) {
 		float DistanceToCur = (player->GetWorldPosition() - cursorPos).GetMagnitude();
@@ -67,9 +76,6 @@ void PhysicsApp::Update(float delta)
 		lines->DrawLineWithArrow(Vec2{ player->GetWorldPosition().x ,-10.0f }, Vec2{ player->GetWorldPosition().x, -10.0f } + (Vec2(player->GetWorldPosition() - cursorPos).Normalise()) * launchMagnitude, Colour::RED);
 	}
 	
-	for (int i = 0; i < objects.size(); ++i){
-		objects[i]->Draw(lines);
-	}
 }
 
 void PhysicsApp::QueueCollision(Collider* a, Collider* b)
@@ -114,7 +120,7 @@ void PhysicsApp::QueueCollision(Collider* a, Collider* b)
 
 void PhysicsApp::OnLeftClick()
 {
-	player->GetRigidBody().SetPosition(cursorPos);
+	player->SetPosition(cursorPos);
 	player->GetRigidBody().SetVelocity(Vec2{ 0,0 });
 	player->GetRigidBody().SetIsDirty(false);
 }

@@ -22,7 +22,6 @@ public:
 	void ApplyImpulse(Vec2 direction, float magnitude);
 	void ApplyConstantForce(Vec2 direction, float magnitude, float& timer, float& currentTime, float delta);
 	void SetVelocity(Vec2 velocity);
-	void SetPosition(Vec2 position);
 	void Bounce();
 
 	void HandleResistances(float delta);
@@ -45,7 +44,7 @@ protected:
 	Vec2 currentVelocity = { 0,0 };
 	Vec2 objectSize = { 1.f, 1.f };
 
-	float maxMagnitude = 10.f;
+	float maxMagnitude = 5.f;
 	
 	float currentSpeed = 1.0f;
 	float gravity = 0.098f;

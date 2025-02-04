@@ -34,6 +34,7 @@ public:
 	float GetCurrentSpeed() const;
 	float GetTerminalVelocity() const;
 
+	void SetInverseMass(float inverseMass);
 	void SetPosition(Vec2 pos);
 
 	//Reference access
@@ -43,6 +44,8 @@ public:
 private:
 
 	void SetColliderByEnum(ObjectShape shape);
+public:
+	Colour colour = Colour::WHITE;
 
 protected:
 	RigidBody* rb = nullptr;
@@ -50,7 +53,6 @@ protected:
 
 	ObjectShape shape = ObjectShape::CIRCLE;
 	Vec2 drawSize = { 1.f,1.f };
-	Colour colour = Colour::WHITE;
 
 	Vec2 actorPosition = { 0,0 };
 

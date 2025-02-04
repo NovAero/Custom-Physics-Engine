@@ -4,7 +4,7 @@
 
 RigidBody::RigidBody()
 {
-	parent = nullptr;
+
 }
 
 RigidBody::RigidBody(Actor* parent) : parent(parent)
@@ -35,6 +35,7 @@ void RigidBody::Update(float delta, Vec2 cursorPos)
 	if (isDirty) {
 		if (currentVelocity.GetMagnitude() >= maxMagnitude) {
 			currentVelocity.SetMagnitude(maxMagnitude);
+			currentSpeed = maxMagnitude;
 		}
 		parent->actorPosition += currentVelocity * currentSpeed * delta;
 	}
@@ -52,7 +53,6 @@ void RigidBody::Update(float delta, Vec2 cursorPos)
 	else {
 		isGrounded = false;
 	}
-	HandleResistances(delta);
 }
 
 void RigidBody::ApplyImpulse(Vec2 direction, float magnitude)
@@ -100,12 +100,6 @@ void RigidBody::HandleResistances(float delta)
 
 	currentSpeed = currentVelocity.GetMagnitude();
 
-}
-
-void RigidBody::SetPosition(Vec2 position)
-{
-	parent->actorPosition = position;
-	parent->GetCollider().position = position;
 }
 
 void RigidBody::Bounce()
