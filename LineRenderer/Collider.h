@@ -8,10 +8,10 @@ class Actor;
 class Collider {
 public:
 	Collider() = default;
-	Collider(float inverseMass);
+	Collider(Actor* parent,  float inverseMass);
 	virtual ~Collider();
 
-	virtual Vec2 UpdatePos(float delta);
+	virtual Vec2 UpdatePos();
 
 	Actor* parent = nullptr;
 	Vec2 position = { 0,0 };
@@ -20,7 +20,7 @@ public:
 
 class CircleCollider : public Collider{
 public:
-	CircleCollider(Vec2 position = { 0,0 }, float radius = 1.f, float inverseMass = 0.f);
+	CircleCollider(Actor* parent, Vec2 position = { 0,0 }, float radius = 1.f, float inverseMass = 0.f);
 	virtual ~CircleCollider() override { Collider::~Collider(); }
 
 public:
@@ -29,13 +29,13 @@ public:
 
 class PolygonCollider : public Collider {
 public:
-	PolygonCollider(float inverseMass);
-	PolygonCollider(Vec2 position, int numPoints, float inverseMass);
-	PolygonCollider(Vec2 position, std::vector<Vec2> points, float inverseMass);
+	PolygonCollider(Actor* parent, float inverseMass);
+	PolygonCollider(Actor* parent, Vec2 position, int numPoints, float inverseMass);
+	PolygonCollider(Actor* parent, Vec2 position, std::vector<Vec2> points, float inverseMass);
 	virtual ~PolygonCollider() override { Collider::~Collider(); }
 
-	virtual Vec2 UpdatePos(float delta) override;
-	void UpdatePoints(Vec2 translation);
+	virtual Vec2 UpdatePos() override;
+	void UpdatePoints();
 
 	std::vector<Vec2> GetPoints();
 
@@ -45,9 +45,9 @@ protected:
 
 class BoxCollider : public PolygonCollider {
 public:
-	BoxCollider(Vec2 position = { 0,0 }, Vec2 dimensions = { 0,0 }, float inverseMass = 0.f);
+	BoxCollider(Actor* parent, Vec2 position = { 0,0 }, Vec2 dimensions = { 0,0 }, float inverseMass = 0.f);
 	virtual ~BoxCollider() override { PolygonCollider::~PolygonCollider(); }
-	virtual Vec2 UpdatePos(float delta) override;
+	virtual Vec2 UpdatePos() override;
 
 public:
 	Vec2 dimensions;

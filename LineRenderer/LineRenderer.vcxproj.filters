@@ -65,9 +65,6 @@
     <ClCompile Include="RigidBody.cpp">
       <Filter>Game\PhysicsGame</Filter>
     </ClCompile>
-    <ClCompile Include="Box.cpp">
-      <Filter>Game\PhysicsGame</Filter>
-    </ClCompile>
     <ClCompile Include="Grid.cpp">
       <Filter>Game\PhysicsGame</Filter>
     </ClCompile>
@@ -173,9 +170,6 @@
       <Filter>Game\PhysicsGame</Filter>
     </ClInclude>
     <ClInclude Include="RigidBody.h">
-      <Filter>Game\PhysicsGame</Filter>
-    </ClInclude>
-    <ClInclude Include="Box.h">
       <Filter>Game\PhysicsGame</Filter>
     </ClInclude>
     <ClInclude Include="Scene.h">

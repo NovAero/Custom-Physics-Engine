@@ -7,8 +7,7 @@ Actor::Actor()
 {
 	rb = new RigidBody();
 	rb->parent = this;
-	collider = new Collider(0.f);
-	collider->parent = this;
+	collider = new Collider(this, 0.f);
 }
 
 Actor::Actor(Vec2 pos, ObjectShape shape, Vec2 drawSize)
@@ -22,8 +21,6 @@ Actor::Actor(Vec2 pos, ObjectShape shape, Vec2 drawSize)
 	rb->objectSize = drawSize/2;
 
 	SetColliderByEnum(shape);
-
-	collider->parent = this;
 }
 
 Actor::Actor(RigidBody* rb, Collider* col)
@@ -31,7 +28,6 @@ Actor::Actor(RigidBody* rb, Collider* col)
 	this->rb = rb;
 	rb->parent = this;
 	collider = col;
-	collider->parent = this;
 }
 
 void Actor::Update(float delta, Vec2 cursorPos)
@@ -39,7 +35,7 @@ void Actor::Update(float delta, Vec2 cursorPos)
 	Vec2 savePos = actorPosition;
 	rb->Update(delta, cursorPos);
 	
-	collider->UpdatePos(delta);
+	collider->UpdatePos();
 	
 	rb->HandleResistances(delta);
 }
@@ -86,12 +82,45 @@ void Actor::Draw(LineRenderer* lines)
 		//Single Line
 		lines->DrawLineSegment(Vec2{ actorPosition.x - (drawSize.x / 2), actorPosition.y }, Vec2{ actorPosition.x + (drawSize.x / 2), actorPosition.y }, colour);
 		break;
+	case POLYGON:
+
+		PolygonCollider* polyA = dynamic_cast<PolygonCollider*>(collider);
+
+		if (!polyA) break;
+
+		//Get first two points to draw between
+		Vec2 next, current;
+
+		for (int i = 0; i < polyA->GetPoints().size(); ++i) {
+
+			current = polyA->GetPoints()[i];
+
+			if (i+1 == polyA->GetPoints().size()) {
+				next = polyA->GetPoints()[0];
+			}
+			else {
+				next = polyA->GetPoints()[i + 1];
+			}
+
+			lines->DrawLineSegment(current, next);
+			
+		}
+
+		lines->DrawLineSegment(polyA->GetPoints()[polyA->GetPoints().size()-1], polyA->GetPoints()[0]);
+
+		break;
+
 	}
 }
 
 Vec2 Actor::GetWorldPosition() const
 {
 	return actorPosition;
+}
+
+Vec2 Actor::GetDrawSize() const
+{
+	return drawSize;
 }
 
 float Actor::GetCurrentSpeed() const
@@ -150,11 +179,11 @@ void Actor::SetColliderByEnum(ObjectShape shape)
 {
 	switch (shape) {
 	case CIRCLE:
-		collider = new CircleCollider(actorPosition, drawSize.y / 2, drawSize.y * PI);
+		collider = new CircleCollider(this, actorPosition, drawSize.y / 2, drawSize.y * PI);
 		break;
 
 	case SQUARE:
-		collider = new BoxCollider(actorPosition, drawSize, drawSize.x * drawSize.y);
+		collider = new BoxCollider(this, actorPosition, drawSize, drawSize.x * drawSize.y);
 		break;
 
 	case TRIANGLE:
@@ -165,7 +194,7 @@ void Actor::SetColliderByEnum(ObjectShape shape)
 		temp.push_back(Vec2(actorPosition.x, actorPosition.y + drawSize.y / 2));
 		temp.push_back(Vec2(actorPosition.x + drawSize.x / 2, actorPosition.y + drawSize.y / 2));
 
-		collider = new PolygonCollider(actorPosition, temp, (drawSize.x*drawSize.y) / 2);
+		collider = new PolygonCollider(this, actorPosition, temp, (drawSize.x*drawSize.y) / 2);
 		break;
 	}
 	case LINE:
@@ -176,7 +205,12 @@ void Actor::SetColliderByEnum(ObjectShape shape)
 
 		drawSize.y = 0.1f;
 
-		collider = new PolygonCollider(actorPosition, temp, drawSize.x);
+		collider = new PolygonCollider(this, actorPosition, temp, drawSize.x);
+		break;
+	}
+	case POLYGON:
+	{
+		collider = new PolygonCollider(this, actorPosition, drawSize.x, drawSize.y * drawSize.y);
 		break;
 	}
 	}

@@ -12,11 +12,22 @@ enum ObjectShape
 	CIRCLE,
 	SQUARE,
 	TRIANGLE,
-	LINE
+	LINE,
+	POLYGON
 };
 
 class Actor {
 public:
+
+	/* 
+	For actor construction, with the drawSize variable, the y 
+	value will determine the size of everything except a Box and circle, (y is the radius)
+	Passing in a polygon as the shape will use the x value to
+	determine the amount of points to create.
+	I know this is hacky but it is more useful to just use the drawSize
+	than to make a new per case variable for polygons
+	*/
+
 	Actor();
 	Actor(Vec2 pos, ObjectShape shape, Vec2 drawSize);
 	Actor(RigidBody* rb, Collider* col);
@@ -25,6 +36,8 @@ public:
 	virtual void Draw(LineRenderer* lines);
 
 	Vec2 GetWorldPosition() const;
+
+	Vec2 GetDrawSize() const;
 
 	//RigidBody Functions
 	Vec2 GetCurrentVelocity() const;

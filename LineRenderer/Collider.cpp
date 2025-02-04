@@ -1,9 +1,10 @@
 #include "Collider.h"
 #include "Actor.h"
 
-Collider::Collider(float inverseMass) : invMass(inverseMass)
+Collider::Collider(Actor* parent, float inverseMass)
 {
-
+	this->parent = parent;
+	this->invMass = inverseMass;
 }
 
 Collider::~Collider()
@@ -11,7 +12,7 @@ Collider::~Collider()
 	parent = nullptr;
 }
 
-Vec2 Collider::UpdatePos(float delta)
+Vec2 Collider::UpdatePos()
 {
 	Vec2 lastPos;
 	position = parent->GetWorldPosition();
@@ -19,13 +20,13 @@ Vec2 Collider::UpdatePos(float delta)
 }
 
 
-CircleCollider::CircleCollider(Vec2 position, float radius, float inverseMass) : Collider(inverseMass)
+CircleCollider::CircleCollider(Actor* parent, Vec2 position, float radius, float inverseMass) : Collider(parent, inverseMass)
 {
 	this->position = position;
 	this->radius = radius;
 }
 
-BoxCollider::BoxCollider(Vec2 position, Vec2 dimensions, float inverseMass) : PolygonCollider(inverseMass)
+BoxCollider::BoxCollider(Actor* parent, Vec2 position, Vec2 dimensions, float inverseMass) : PolygonCollider(parent, inverseMass)
 {
 	this->position = position;
 	this->dimensions = dimensions;
@@ -37,9 +38,9 @@ BoxCollider::BoxCollider(Vec2 position, Vec2 dimensions, float inverseMass) : Po
 	points.push_back(Vec2{position.x + (dimensions.x / 2), position.y - (dimensions.y / 2) }); //Bottom Right
 }
 
-Vec2 BoxCollider::UpdatePos(float delta)
+Vec2 BoxCollider::UpdatePos()
 {
-	Collider::UpdatePos(delta);
+	Collider::UpdatePos();
 
 	points[0] = { position.x - (dimensions.x / 2), position.y - (dimensions.y / 2) };
 	points[1] = { position.x - (dimensions.x / 2), position.y + (dimensions.y / 2) };
@@ -49,38 +50,53 @@ Vec2 BoxCollider::UpdatePos(float delta)
 	return position;
 }
 
-PolygonCollider::PolygonCollider(float inverseMass) : Collider(inverseMass)
+PolygonCollider::PolygonCollider(Actor* parent, float inverseMass) : Collider(parent, inverseMass)
 {
 }
 
-PolygonCollider::PolygonCollider(Vec2 position, int numPoints, float inverseMass)
+PolygonCollider::PolygonCollider(Actor* parent, Vec2 position, int numPoints, float inverseMass) : PolygonCollider(parent, inverseMass)
 {
-	Vec2 dir = { 0.f, -1.f };
+	//Angles to rotate around for a perfect shape
+	float cosAngle = cos(2 * PI / numPoints);
+	float sinAngle = sin(2 * PI / numPoints);
 
-	for (int i = 0; i <= numPoints; ++i) {
-		points.push_back(dir * parent->GetRbSize().x);
-		dir = dir.GetRotatedBy(numPoints / i);
+	Vec2 plotPoint(0, -(parent->GetDrawSize().y / 2));
+
+	for (int i = 0; i < numPoints; i++)
+	{
+		//Rotate, Add point
+		plotPoint.RotateBy(cosAngle, sinAngle);
+		points.push_back(position + plotPoint);
 	}
 }
 
-PolygonCollider::PolygonCollider(Vec2 position, std::vector<Vec2> points, float inverseMass) : Collider(inverseMass)
+PolygonCollider::PolygonCollider(Actor* parent, Vec2 position, std::vector<Vec2> points, float inverseMass) : Collider(parent, inverseMass)
 {
 	this->position = position;
 	this->points = points;
 	invMass = inverseMass;
 }
 
-Vec2 PolygonCollider::UpdatePos(float delta)
+Vec2 PolygonCollider::UpdatePos()
 {
-	Vec2 translation = Collider::UpdatePos(delta);
-	UpdatePoints(translation * delta);
-	return translation;
+	Collider::UpdatePos();
+	UpdatePoints();
+	return position;
 }
 
-void PolygonCollider::UpdatePoints(Vec2 translation)
+void PolygonCollider::UpdatePoints()
 {
-	for (Vec2& point : points) {
-		point += translation;
+	//Angles to rotate around for a perfect shape
+	float cosAngle = cos(2 * PI / points.size());
+	float sinAngle = sin(2 * PI / points.size());
+
+	Vec2 plotPoint(0, -(parent->GetDrawSize().y / 2));
+
+	for (int i = 0; i < points.size(); i++)
+	{
+		//Rotate, Add point
+		plotPoint.RotateBy(cosAngle, sinAngle);
+		points[i] = position + plotPoint;
 	}
 }
 

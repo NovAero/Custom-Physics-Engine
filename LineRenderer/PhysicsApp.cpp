@@ -21,7 +21,7 @@ PhysicsApp::~PhysicsApp()
 
 void PhysicsApp::Initialise()
 {
-	player = new Actor(Vec2{ 4,4 }, ObjectShape::SQUARE, Vec2{2.f,2.f});
+	player = new Actor(Vec2{ 4,4 }, ObjectShape::POLYGON, Vec2{8,2});
 	player->colour = Colour::GREEN;
 
 	objects.push_back(player);
@@ -33,7 +33,7 @@ void PhysicsApp::Initialise()
 	objects.push_back(new Actor(Vec2{ -5.f, 3.5f }, ObjectShape::CIRCLE, Vec2{ 5, 5 }));
 
 	objects[2]->GetRigidBody().ApplyImpulse(Vec2{ 0.f, 1.f }, 1);
-
+	objects[1]->GetRigidBody().ApplyImpulse(Vec2{ 0.f, 1.f }, 1);
 
 }
 

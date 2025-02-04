@@ -158,7 +158,6 @@
     <ClCompile Include="..\imgui\imgui_tables.cpp" />
     <ClCompile Include="..\imgui\imgui_widgets.cpp" />
     <ClCompile Include="Actor.cpp" />
-    <ClCompile Include="Box.cpp" />
     <ClCompile Include="Collider.cpp" />
     <ClCompile Include="Collision.cpp" />
     <ClCompile Include="CollisionFunctions.cpp" />
@@ -194,7 +193,6 @@
     <ClInclude Include="Actor.h" />
     <ClInclude Include="AppInfo.h" />
     <ClInclude Include="Application.h" />
-    <ClInclude Include="Box.h" />
     <ClInclude Include="Collider.h" />
     <ClInclude Include="Collision.h" />
     <ClInclude Include="CollisionFunctions.h" />
