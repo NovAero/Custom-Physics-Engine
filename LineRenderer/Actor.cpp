@@ -103,6 +103,8 @@ void Actor::Draw(LineRenderer* lines)
 			}
 
 			lines->DrawLineSegment(current, next);
+			//Debug
+			lines->DrawCircle(current, 0.2f, Colour::RED);
 			
 		}
 

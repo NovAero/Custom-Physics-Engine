@@ -67,83 +67,13 @@ CollisionInfo CircleToPolyCollision(CircleCollider* a, PolygonCollider* b)
 	info.colliderA = a;
 	info.colliderB = b;
 
-	//Get first and second closest points. First initialised to centre of b to centre of a
-	Vec2 first = b->position - a->position;
-	Vec2 second = { 0,0 };
+	//TODO SAT check code - watch recording from 05/02
 
-	for (auto point : b->GetPoints()) {
-		if ((point - a->position).GetMagnitudeSquared() <= (first - a->position).GetMagnitudeSquared()) {
-			second = first;
-			first = point;
-		}
-		else if ((point - a->position).GetMagnitudeSquared() <= (second - a->position).GetMagnitudeSquared()) {
-			second = point;
-		}
-	}
+	float min1 = FLT_MAX;
+	float max1 = -FLT_MAX;
 
-	//Get middle of two points
-	Vec2 midPoint = GetMidpoint(first, second);
-	//From a to midpoint * radius - is overlapping the mid point
-	Vec2 aToMid = (midPoint - a->position).GetNormalised() * a->radius;
-	Vec2 aToFirst = (first - a->position).GetNormalised() * a->radius;
-	Vec2 aToSecond = (second - a->position).GetNormalised() * a->radius;
+	std::vector<Vec2> normals;
 
-	//Useful for the edge case where its not over first point, and needs
-	//to be pushed along first dot second
-	bool overMidPoint = false;
-	//If over first point
-	bool overFirstPoint = false;
-	//if over second
-	bool overSecondPoint = false;
-
-	//if the circle overlaps the first point
-	if ((first - a->position).GetMagnitudeSquared() < aToFirst.GetMagnitudeSquared()) {
-		overFirstPoint = true;
-	}
-	//if the circle overlaps the midpoint of first and second
-	if ((midPoint - a->position).GetMagnitudeSquared() < aToMid.GetMagnitudeSquared()) {
-		overMidPoint = true;
-	}
-	if ((second - a->position).GetMagnitudeSquared() < aToSecond.GetMagnitudeSquared()) {
-		overSecondPoint = true;
-	}
-
-	Vec2 saveVec;
-
-	//Check edge cases
-	if (overFirstPoint && overSecondPoint) { //if true it is over midpoint aswell so no need to check
-		info.collisionNormal = aToMid.GetNormalised();
-		saveVec = midPoint;
-	}
-	else if (overFirstPoint && !overSecondPoint) {
-		if (overMidPoint) { //Get middle of first and middle then get direction to it
-			Vec2 qtrMid = GetMidpoint(first, midPoint);
-			saveVec = qtrMid;
-			info.collisionNormal = (qtrMid - a->position).GetNormalised(); //middle of first and midpoint to a
-		}
-		else { //only over first 
-			saveVec = first;
-			info.collisionNormal = aToFirst.GetNormalised(); //first to a
-		}
-	}
-	else if (overMidPoint) {
-		//Only over Midpoint
-		info.collisionNormal = aToMid.GetNormalised(); //midpoint to a
-		saveVec = midPoint;
-	}
-
-	if (b->position.x + midPoint.x > a->position.x + aToMid.x) {
-		info.collisionNormal = aToMid.GetNormalised();
-	}
-	else if (b->position.y + midPoint.y > a->position.y + aToMid.y) {
-		info.collisionNormal = aToMid.GetNormalised();
-	}
-	
-	if (overFirstPoint || overSecondPoint || overMidPoint) {
-		//distance of a to its radius in direction - the distance of a to point
-		float overlap = a->radius - (a->position - saveVec).GetMagnitude();
-		info.overlapAmount = overlap;
-	}
 
 	return info;
 }
@@ -162,27 +92,32 @@ CollisionInfo PolyToPolyCollision(PolygonCollider* a, PolygonCollider* b)
 		return info;
 	}
 
-	Vec2 closestV2ToA, closestV2ToB;
-	std::vector<Vec2> aPts = a->GetPoints();
-	std::vector<Vec2> bPts = b->GetPoints();
+	//TODO SAT check code - watch recording from 05/02
 
-	//Check closest to centre of A
-	for (int j = 0; j < b->GetPoints().size(); ++j) {
-		if ((bPts[j] - a->position).GetMagnitudeSquared() < (closestV2ToA - a->position).GetMagnitudeSquared()) {
-			closestV2ToA = bPts[j];
-		}
-	}
-	//Check closest to centre of B
+	float min1 = FLT_MAX;
+	float max1 = -FLT_MAX;
+
+	std::vector<Vec2> normals;
+
+	//PolyA's normals
 	for (int i = 0; i < a->GetPoints().size(); ++i) {
-		if ((aPts[i] - b->position).GetMagnitudeSquared() < (closestV2ToB - b->position).GetMagnitudeSquared()) {
-			closestV2ToB = aPts[i];
-		}
+
+		Vec2 current = a->GetPoints()[(i+1)% a->GetPoints().size()] - a->GetPoints()[i];
+		current.Normalise().RotateBy90();
+
+		normals.push_back(current);
 	}
 
+	//PolyB's normals
+	for (int i = 0; i < b->GetPoints().size(); ++i) {
 
-	//Get direction FROM a TO B, and the depth between the two closest vertices
-	info.collisionNormal = (closestV2ToB - closestV2ToA).GetNormalised();
-	info.overlapAmount = -(closestV2ToB - closestV2ToA).GetMagnitude();
+		Vec2 current = b->GetPoints()[(i + 1) % b->GetPoints().size()] - b->GetPoints()[i];
+		current.Normalise().RotateBy90();
+
+		normals.push_back(current);
+	}
+
+	//TODO sort out distances on normals
 
 	return info;
 }
