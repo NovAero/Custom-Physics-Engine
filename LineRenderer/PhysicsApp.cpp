@@ -21,12 +21,12 @@ PhysicsApp::~PhysicsApp()
 
 void PhysicsApp::Initialise()
 {
-	player = new Actor(Vec2{ 4,4 }, ObjectShape::POLYGON, Vec2{8,2});
+	player = new Actor(Vec2{ 4,4 }, ObjectShape::POLYGON, Vec2{6,2});
 	player->colour = Colour::GREEN;
 
 	objects.push_back(player);
 	
-	Actor* box1 = new Actor(Vec2{ 5,5 }, ObjectShape::SQUARE, Vec2{ 2.f,2.f });
+	Actor* box1 = new Actor(Vec2{ 5,5 }, ObjectShape::POLYGON, Vec2{ 6,3 });
 
 	objects.push_back(box1);
 
@@ -50,7 +50,9 @@ void PhysicsApp::Update(float delta)
 	}
 	for (CollisionInfo& thisInfo : collisions)
 	{
-		thisInfo.Resolve();
+		lines->DrawLineWithArrow(thisInfo.colliderA->position, thisInfo.colliderA->position + thisInfo.collisionNormal * 1.0, Colour::RED, 0.3f);
+		lines->DrawLineWithArrow(thisInfo.colliderB->position, thisInfo.colliderB->position - thisInfo.collisionNormal * 1.0, Colour::RED, 0.3f);
+		/*thisInfo.Resolve();*/
 	}
 
 	for (int i = 0; i < objects.size(); ++i) {

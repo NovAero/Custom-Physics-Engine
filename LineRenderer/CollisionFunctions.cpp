@@ -92,10 +92,10 @@ CollisionInfo PolyToPolyCollision(PolygonCollider* a, PolygonCollider* b)
 		return info;
 	}
 
-	//TODO SAT check code - watch recording from 05/02
-
-	float min1 = FLT_MAX;
-	float max1 = -FLT_MAX;
+	float aMin = FLT_MAX;
+	float aMax = -FLT_MAX;
+	float bMin = FLT_MAX;
+	float bMax = -FLT_MAX;
 
 	std::vector<Vec2> normals;
 
@@ -117,7 +117,43 @@ CollisionInfo PolyToPolyCollision(PolygonCollider* a, PolygonCollider* b)
 		normals.push_back(current);
 	}
 
-	//TODO sort out distances on normals
+	float smallestDepth = FLT_MAX;
+	Vec2 smallestDepthNormal;
+
+	//Find projections
+	for (Vec2 currentNormal : normals) {
+		//A min and max
+		for (Vec2 currentPoint : a->GetPoints()) {
+			float projection = Dot(currentPoint, currentNormal);
+
+			if (projection < aMin) aMin = projection;
+			if (projection > aMax) aMax = projection;
+		}
+		//B min and max
+		for (Vec2 currentPoint : b->GetPoints()) {
+			float projection = Dot(currentPoint, currentNormal);
+
+			if (projection < bMin) bMin = projection;
+			if (projection > bMax) bMax = projection;
+		}
+
+		//TODO fix negative - negative resulting in false positive 
+		float overlapA = aMax - bMin;
+		float overlapB = bMax - aMin;
+
+		//Smallest overlap direction and depth
+		if (overlapB < smallestDepth) {
+			smallestDepth = overlapB;
+			smallestDepthNormal = currentNormal;
+		}
+		if (overlapA < smallestDepth) {
+			smallestDepth = overlapA;
+			smallestDepthNormal = currentNormal;
+		}
+	}
+
+	info.overlapAmount = smallestDepth;
+	info.collisionNormal = smallestDepthNormal;
 
 	return info;
 }
