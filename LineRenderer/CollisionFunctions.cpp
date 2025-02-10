@@ -127,15 +127,6 @@ CollisionInfo PolyToPolyCollision(PolygonCollider* a, PolygonCollider* b)
 	info.colliderA = a;
 	info.colliderB = b;
 
-	BoxCollider* boxA = dynamic_cast<BoxCollider*>(a);
-	BoxCollider* boxB = dynamic_cast<BoxCollider*>(b);
-
-	if (boxA != nullptr && boxB != nullptr) {
-		info = BoxToBoxCollision(boxA, boxB);
-		return info;
-	}
-
-
 	std::vector<Vec2> normals;
 
 	//PolyA's normals

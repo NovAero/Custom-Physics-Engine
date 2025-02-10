@@ -21,22 +21,31 @@ PhysicsApp::~PhysicsApp()
 
 void PhysicsApp::Initialise()
 {
-	player = new Actor(Vec2{ 4,4 }, ObjectShape::POLYGON, Vec2{5,2});
+	player = new Actor(Vec2{ 4,4 }, ObjectShape::POLYGON, Vec2{9,2});
 	player->colour = Colour::GREEN;
 
 	objects.push_back(player);
 	
-	Actor* box1 = new Actor(Vec2{ 5,5 }, ObjectShape::POLYGON, Vec2{ 10,3 });
+	Actor* box1 = new Actor(Vec2{ 5,5 }, ObjectShape::POLYGON, Vec2{ 7,5 });
 
 	objects.push_back(box1);
 
-	objects.push_back(new Actor(Vec2{ -5.f, 3.5f }, ObjectShape::CIRCLE, Vec2{ 5, 5 }));
+	objects.push_back(new Actor(Vec2{ 0.f, 0.f }, ObjectShape::SQUARE, Vec2{ 10, 5 }));
+	objects.push_back(new Actor(Vec2{ 30.f, -20.f }, ObjectShape::POLYGON, Vec2{4, 100 }));
+	objects.push_back(new Actor(Vec2{ -30.f, -20.5f }, ObjectShape::POLYGON, Vec2{ 4, 100 }));
 
 	objects[2]->SetInverseMass(0.f);
+	objects[2]->GetRigidBody().SetIsStatic(true);
 
-	objects[2]->GetRigidBody().ApplyImpulse(Vec2{ 0.f, 1.f }, 1);
-	objects[1]->GetRigidBody().ApplyImpulse(Vec2{ 0.f, 1.f }, 1);
+	objects[3]->SetInverseMass(0.f);
+	objects[3]->GetRigidBody().SetIsStatic(true);
 
+	objects[4]->SetInverseMass(0.f);
+	objects[4]->GetRigidBody().SetIsStatic(true);
+
+	for (float i = 1.f; i < 26; ++i) {
+		objects.push_back(new Actor(Vec2{ 1.f, i * 2}, ObjectShape::POLYGON, Vec2{6, 2}));
+	}
 }
 
 void PhysicsApp::Update(float delta)

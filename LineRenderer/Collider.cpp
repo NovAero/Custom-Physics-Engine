@@ -90,7 +90,7 @@ void PolygonCollider::UpdatePoints()
 	float cosAngle = cos(2 * PI / points.size());
 	float sinAngle = -sin(2 * PI / points.size());
 
-	Vec2 plotPoint(0, -(parent->GetDrawSize().y / 2));
+	Vec2 plotPoint(0, (parent->GetDrawSize().y / 2));
 
 	for (int i = 0; i < points.size(); i++)
 	{

@@ -32,6 +32,7 @@ RigidBody::~RigidBody()
 
 void RigidBody::Update(float delta, Vec2 cursorPos)
 { 
+	if (isStatic) return;
 	if (isDirty) {
 		if (currentVelocity.GetMagnitude() >= maxMagnitude) {
 			currentVelocity.SetMagnitude(maxMagnitude);
@@ -41,7 +42,7 @@ void RigidBody::Update(float delta, Vec2 cursorPos)
 	}
 
 	if (parent->actorPosition.y <= -10.f + objectSize.y) {
-		if (bounce && currentVelocity.GetMagnitude() > 2.5f) {
+		if (isBouncy && currentVelocity.GetMagnitude() > 2.5f) {
 			parent->actorPosition.y = -10.f + objectSize.y;
 			Bounce();
 		}
@@ -79,18 +80,25 @@ void RigidBody::SetVelocity(Vec2 vel)
 
 void RigidBody::HandleResistances(float delta)
 {
-	if (currentVelocity.x >= 0) {
-		currentVelocity.x -= drag * delta;
+	if (currentVelocity.x >= 0.f) {
 
 		if (isGrounded) {
 			currentVelocity.x -= friction * delta;
+		}
+		else {
+			currentVelocity.x -= drag * delta;
 		}
 	}
 	else {
 		currentVelocity.x += drag * delta;
 
 		if (isGrounded) {
-			currentVelocity.x += friction * delta;
+			if (currentVelocity.x <= 0.25f) {
+				currentVelocity.x = 0.f;
+			}
+			else {
+				currentVelocity.x += friction * delta;
+			}
 		}
 	}
 
@@ -106,4 +114,5 @@ void RigidBody::Bounce()
 {
 	currentVelocity.y = -currentVelocity.y;
 	currentVelocity *= friction;
+	
 }

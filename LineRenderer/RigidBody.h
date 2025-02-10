@@ -32,8 +32,11 @@ public:
 	float GetCurrentSpeed() const { return currentSpeed; }
 	Vec2 GetCurrentVelocity() const { return currentVelocity; }
 	float GetTerminalVelocity() const { return maxMagnitude; }
+	bool GetIsBouncy() const { return isBouncy; }
+	bool GetIsStatic() const { return isStatic; }
 
 	void SetIsDirty(bool dirty) { isDirty = dirty; }
+	void SetIsStatic(bool _static) { isStatic = _static; }
 
 protected:
 
@@ -52,8 +55,10 @@ protected:
 	float friction = 0.65f;
 
 	bool isGrounded = true;
-	bool bounce = true;
+	bool isBouncy = true;
 	bool isDirty = false;
+
+	bool isStatic = false;
 
 	friend class Actor;
 };

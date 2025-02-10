@@ -57,33 +57,10 @@ void Actor::Draw(LineRenderer* lines)
 		lines->DrawLineSegment(Vec2{ actorPosition.x - (drawSize.x / 2), actorPosition.y + (drawSize.y / 2) }, Vec2{ actorPosition.x + (drawSize.x / 2), actorPosition.y + (drawSize.y / 2) }, colour);
 		//Right
 		lines->DrawLineSegment(Vec2{ actorPosition.x + (drawSize.x / 2), actorPosition.y + (drawSize.y / 2) }, Vec2{ actorPosition.x + (drawSize.x / 2), actorPosition.y - (drawSize.y / 2) }, colour);
-
-		BoxCollider* pts = dynamic_cast<BoxCollider*>(collider);
-
-		if (pts != nullptr) {
-			//Bottom
-			lines->DrawCircle(pts->position, 0.2f, Colour::ORANGE);
-			lines->DrawCircle(pts->GetPoints()[0], 0.2f, Colour::GREEN);
-			lines->DrawCircle(pts->GetPoints()[1], 0.2f, Colour::RED);
-			lines->DrawCircle(pts->GetPoints()[2], 0.2f, Colour::CYAN);
-			lines->DrawCircle(pts->GetPoints()[3], 0.2f, Colour::YELLOW);
-		}
 		break;
 	}
 	case TRIANGLE:
-		//Bottom
-		lines->DrawLineSegment(Vec2{ actorPosition.x - (drawSize.x / 2), actorPosition.y - (drawSize.y / 2) }, Vec2{ actorPosition.x + (drawSize.x / 2), actorPosition.y - (drawSize.y / 2) }, colour);
-		//Left
-		lines->DrawLineSegment(Vec2{ actorPosition.x - (drawSize.x / 2), actorPosition.y - (drawSize.y / 2) }, Vec2{ actorPosition.x, actorPosition.y + (drawSize.y / 2) }, colour);
-		//Right
-		lines->DrawLineSegment(Vec2{ actorPosition.x + (drawSize.x / 2), actorPosition.y - (drawSize.y / 2) }, Vec2{ actorPosition.x , actorPosition.y + (drawSize.y / 2) }, colour);
-		break;
-	case LINE:
-		//Single Line
-		lines->DrawLineSegment(Vec2{ actorPosition.x - (drawSize.x / 2), actorPosition.y }, Vec2{ actorPosition.x + (drawSize.x / 2), actorPosition.y }, colour);
-		break;
-	case POLYGON:
-
+	{
 		PolygonCollider* polyA = dynamic_cast<PolygonCollider*>(collider);
 
 		if (!polyA) break;
@@ -95,7 +72,7 @@ void Actor::Draw(LineRenderer* lines)
 
 			current = polyA->GetPoints()[i];
 
-			if (i+1 == polyA->GetPoints().size()) {
+			if (i + 1 == polyA->GetPoints().size()) {
 				next = polyA->GetPoints()[0];
 			}
 			else {
@@ -103,18 +80,42 @@ void Actor::Draw(LineRenderer* lines)
 			}
 
 			lines->DrawLineSegment(current, next);
-			//Debug
-
-			if (i == 0) {
-				lines->DrawCircle(polyA->GetPoints()[i], 0.2f, Colour::RED);
-			}
-			
 		}
 
-		lines->DrawLineSegment(polyA->GetPoints()[polyA->GetPoints().size()-1], polyA->GetPoints()[0]);
+		lines->DrawLineSegment(polyA->GetPoints()[polyA->GetPoints().size() - 1], polyA->GetPoints()[0]);
+		break;
+	}
+	case LINE:
+		//Single Line
+		lines->DrawLineSegment(Vec2{ actorPosition.x - (drawSize.x / 2), actorPosition.y }, Vec2{ actorPosition.x + (drawSize.x / 2), actorPosition.y }, colour);
+		break;
+	case POLYGON:
+	{
+		PolygonCollider* polyA = dynamic_cast<PolygonCollider*>(collider);
+
+		if (!polyA) break;
+
+		//Get first two points to draw between
+		Vec2 next, current;
+
+		for (int i = 0; i < polyA->GetPoints().size(); ++i) {
+
+			current = polyA->GetPoints()[i];
+
+			if (i + 1 == polyA->GetPoints().size()) {
+				next = polyA->GetPoints()[0];
+			}
+			else {
+				next = polyA->GetPoints()[i + 1];
+			}
+
+			lines->DrawLineSegment(current, next);
+		}
+
+		lines->DrawLineSegment(polyA->GetPoints()[polyA->GetPoints().size() - 1], polyA->GetPoints()[0]);
 
 		break;
-
+	}
 	}
 }
 
