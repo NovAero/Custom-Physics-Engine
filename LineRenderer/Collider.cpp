@@ -88,15 +88,15 @@ void PolygonCollider::UpdatePoints()
 {
 	//Angles to rotate around for a perfect shape
 	float cosAngle = cos(2 * PI / points.size());
-	float sinAngle = sin(2 * PI / points.size());
+	float sinAngle = -sin(2 * PI / points.size());
 
 	Vec2 plotPoint(0, -(parent->GetDrawSize().y / 2));
 
 	for (int i = 0; i < points.size(); i++)
 	{
 		//Rotate, Add point
-		plotPoint.RotateBy(cosAngle, sinAngle);
 		points[i] = position + plotPoint;
+		plotPoint.RotateBy(cosAngle, sinAngle);
 	}
 }
 
