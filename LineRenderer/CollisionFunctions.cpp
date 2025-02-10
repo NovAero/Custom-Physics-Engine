@@ -80,7 +80,7 @@ CollisionInfo CircleToPolyCollision(CircleCollider* a, PolygonCollider* b)
 	//Get closest point to centre
 	for (int i = 0; i < b->GetPoints().size(); ++i) {
 
-		if (closestPoint.GetMagnitudeSquared() > (b->GetPoints()[i] - a->position).GetMagnitudeSquared()) {
+		if ((b->GetPoints()[i] - a->position).GetMagnitudeSquared() < (closestPoint - a->position).GetMagnitudeSquared()) {
 			closestPoint = b->GetPoints()[i];
 		}
 	}

@@ -11,19 +11,15 @@ void CollisionInfo::Resolve()
 	float totalSpeed = colliderA->parent->GetCurrentSpeed() + colliderB->parent->GetCurrentSpeed();
 
 	//Depenetrate
-	if (colliderB->invMass != 0.f) {
-		colliderB->parent->SetPosition((colliderB->position) + collisionNormal * overlapAmount * colliderB->invMass / totalInvMass);
-	}
-	if (colliderA->invMass != 0.f) {
-	colliderA->parent->SetPosition((colliderA->position) - collisionNormal * overlapAmount * colliderA->invMass / totalInvMass);
-	}
-
 	//Apply inverse forces if inverse mass is not 0
 	if (colliderB->invMass != 0.f) {
-		colliderB->parent->GetRigidBody().ApplyImpulse(collisionNormal, totalSpeed / colliderB->invMass);
+		colliderB->parent->SetPosition((colliderB->position) + collisionNormal * overlapAmount * colliderB->invMass / totalInvMass);
+		colliderB->parent->GetRigidBody().ApplyImpulse(collisionNormal, (totalSpeed / 2) / colliderB->invMass);
 	}
 	if (colliderA->invMass != 0.f) {
-		colliderA->parent->GetRigidBody().ApplyImpulse(-collisionNormal, totalSpeed / colliderA->invMass);
+		colliderA->parent->SetPosition((colliderA->position) - collisionNormal * overlapAmount * colliderA->invMass / totalInvMass);
+		colliderA->parent->GetRigidBody().ApplyImpulse(-collisionNormal, (totalSpeed / 2) / colliderA->invMass);
 	}
+
 	
 }

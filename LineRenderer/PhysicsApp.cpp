@@ -21,16 +21,18 @@ PhysicsApp::~PhysicsApp()
 
 void PhysicsApp::Initialise()
 {
-	player = new Actor(Vec2{ 4,4 }, ObjectShape::POLYGON, Vec2{4,2});
+	player = new Actor(Vec2{ 4,4 }, ObjectShape::POLYGON, Vec2{5,2});
 	player->colour = Colour::GREEN;
 
 	objects.push_back(player);
 	
-	Actor* box1 = new Actor(Vec2{ 5,5 }, ObjectShape::POLYGON, Vec2{ 19,3 });
+	Actor* box1 = new Actor(Vec2{ 5,5 }, ObjectShape::POLYGON, Vec2{ 10,3 });
 
 	objects.push_back(box1);
 
 	objects.push_back(new Actor(Vec2{ -5.f, 3.5f }, ObjectShape::CIRCLE, Vec2{ 5, 5 }));
+
+	objects[2]->SetInverseMass(0.f);
 
 	objects[2]->GetRigidBody().ApplyImpulse(Vec2{ 0.f, 1.f }, 1);
 	objects[1]->GetRigidBody().ApplyImpulse(Vec2{ 0.f, 1.f }, 1);
