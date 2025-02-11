@@ -69,7 +69,8 @@ void RigidBody::SetVelocity(Vec2 vel)
 void RigidBody::HandleResistances(float delta)
 {
 	if (shouldApplyFriction) {
-		HandleSurfaceFriction(parent->GetCollider().lastCollided->surfaceFriction, delta);
+		HandleSurfaceFriction(parent->GetCollider().lastCollided->surfaceFriction + parent->GetCollider().surfaceFriction, delta);
+		
 	} else {
 		if (currentVelocity.x > 0.f) {
 			currentVelocity.x -= drag * delta;
@@ -92,10 +93,14 @@ void RigidBody::HandleResistances(float delta)
 
 void RigidBody::HandleSurfaceFriction(float friction, float delta)
 {
-	ApplyImpulse(-currentVelocity.GetNormalised(), friction * delta);
+	if (currentSpeed > 1.0f) {
+		ApplyImpulse(-currentVelocity.GetNormalised(), (friction * gravity) * delta);
+	}
 }
 
 void RigidBody::Bounce()
 {
-	currentVelocity.y = -currentVelocity.y;
+	if (currentSpeed > 1.0f) {
+		ApplyImpulse(-currentVelocity.GetNormalised(),7.5);
+	}
 }

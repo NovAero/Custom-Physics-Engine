@@ -25,7 +25,7 @@ void CollisionInfo::Resolve()
 		colliderA->parent->SetPosition((colliderA->position) - collisionNormal * overlapAmount * colliderA->invMass / totalInvMass);
 		if (colliderB->parent->GetRigidBody().GetIsBouncy()) {
 			colliderA->parent->GetRigidBody().ApplyImpulse(-collisionNormal, totalSpeed / colliderA->invMass);
-			colliderB->parent->GetRigidBody().SetShouldApplyFriction(true);
+			colliderA->parent->GetRigidBody().SetShouldApplyFriction(true);
 		}
 	}
 	//Collider B

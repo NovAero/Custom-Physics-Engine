@@ -15,7 +15,7 @@ public:
 
 	Collider* lastCollided;
 
-	float surfaceFriction = 1.f;
+	float surfaceFriction = 0.5f; //Friction coefficient
 	Actor* parent = nullptr;
 	Vec2 position = { 0,0 };
 	float invMass = 0.f;
