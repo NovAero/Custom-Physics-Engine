@@ -3,6 +3,8 @@
 #include "RigidBody.h"
 #include "Collider.h"
 
+bool debug = false;
+
 Actor::Actor()
 {
 	rb = new RigidBody();
@@ -32,16 +34,15 @@ Actor::Actor(RigidBody* rb, Collider* col)
 
 void Actor::Update(float delta, Vec2 cursorPos)
 {
-	Vec2 savePos = actorPosition;
 	rb->Update(delta, cursorPos);
 	
-	collider->UpdatePos();
-	
-	rb->HandleResistances(delta);
+	collider->UpdatePos(actorPosition);
 }
 
 void Actor::Draw(LineRenderer* lines)
 {
+	if (debug) lines->DrawCircle(actorPosition, 0.5f, Colour::CYAN);
+
 	switch (shape) {
 	case CIRCLE:
 		lines->DrawCircle(actorPosition, drawSize.y / 2, colour);
@@ -49,14 +50,29 @@ void Actor::Draw(LineRenderer* lines)
 		break;
 	case SQUARE:
 	{
-		//Bottom
-		lines->DrawLineSegment(Vec2{ actorPosition.x - (drawSize.x / 2), actorPosition.y - (drawSize.y / 2) }, Vec2{ actorPosition.x + (drawSize.x / 2), actorPosition.y - (drawSize.y / 2) }, colour);
-		//Left
-		lines->DrawLineSegment(Vec2{ actorPosition.x - (drawSize.x / 2), actorPosition.y - (drawSize.y / 2) }, Vec2{ actorPosition.x - (drawSize.x / 2), actorPosition.y + (drawSize.y / 2) }, colour);
-		//Top
-		lines->DrawLineSegment(Vec2{ actorPosition.x - (drawSize.x / 2), actorPosition.y + (drawSize.y / 2) }, Vec2{ actorPosition.x + (drawSize.x / 2), actorPosition.y + (drawSize.y / 2) }, colour);
-		//Right
-		lines->DrawLineSegment(Vec2{ actorPosition.x + (drawSize.x / 2), actorPosition.y + (drawSize.y / 2) }, Vec2{ actorPosition.x + (drawSize.x / 2), actorPosition.y - (drawSize.y / 2) }, colour);
+		PolygonCollider* polyA = dynamic_cast<PolygonCollider*>(collider);
+
+		if (!polyA) break;
+
+		//Get first two points to draw between
+		Vec2 next, current;
+
+		for (int i = 0; i < polyA->GetPoints().size(); ++i) {
+
+			current = polyA->GetPoints()[i];
+
+			if (i + 1 == polyA->GetPoints().size()) {
+				next = polyA->GetPoints()[0];
+			}
+			else {
+				next = polyA->GetPoints()[i + 1];
+			}
+
+			if(debug) lines->DrawCircle(current, 0.25, Colour::GREEN);
+
+			lines->DrawLineSegment(current, next);
+		}
+
 		break;
 	}
 	case TRIANGLE:
@@ -79,10 +95,11 @@ void Actor::Draw(LineRenderer* lines)
 				next = polyA->GetPoints()[i + 1];
 			}
 
+			if (debug) lines->DrawCircle(current, 0.25, Colour::GREEN);
 			lines->DrawLineSegment(current, next);
 		}
 
-		lines->DrawLineSegment(polyA->GetPoints()[polyA->GetPoints().size() - 1], polyA->GetPoints()[0]);
+		lines->DrawLineSegment(polyA->GetPoints()[2], polyA->GetPoints()[0]);
 		break;
 	}
 	case LINE:
@@ -109,6 +126,7 @@ void Actor::Draw(LineRenderer* lines)
 				next = polyA->GetPoints()[i + 1];
 			}
 
+			if (debug) lines->DrawCircle(current, 0.25, Colour::GREEN);
 			lines->DrawLineSegment(current, next);
 		}
 
@@ -144,11 +162,6 @@ float Actor::GetTerminalVelocity() const
 	return rb->GetTerminalVelocity();
 }
 
-bool Actor::GetIsGrounded() const
-{
-	return rb->isGrounded;
-}
-
 bool Actor::GetIsDirty() const
 {
 	return rb->isDirty;
@@ -181,6 +194,12 @@ Collider& Actor::GetCollider() const
 	return *collider;
 }
 
+RigidBody& Actor::GetLastCollidedRb() const
+{
+	if (collider->lastCollided == nullptr) return *rb;
+	return collider->lastCollided->parent->GetRigidBody();
+}
+
 void Actor::SetColliderByEnum(ObjectShape shape)
 {
 	switch (shape) {
@@ -198,9 +217,9 @@ void Actor::SetColliderByEnum(ObjectShape shape)
 
 		temp.push_back(Vec2(actorPosition.x - drawSize.x / 2, actorPosition.y - drawSize.y / 2));
 		temp.push_back(Vec2(actorPosition.x, actorPosition.y + drawSize.y / 2));
-		temp.push_back(Vec2(actorPosition.x + drawSize.x / 2, actorPosition.y + drawSize.y / 2));
+		temp.push_back(Vec2(actorPosition.x + drawSize.x / 2, actorPosition.y - drawSize.y / 2));
 
-		collider = new PolygonCollider(this, actorPosition, temp, (drawSize.x*drawSize.y) / 2);
+		collider = new PolygonCollider(this, actorPosition, temp, 0.5 * (drawSize.x*drawSize.y));
 		break;
 	}
 	case LINE:

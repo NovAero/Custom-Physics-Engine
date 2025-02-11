@@ -14,6 +14,4 @@ public:
 
 	float overlapAmount = -1.f;
 	Vec2 collisionNormal;//Points FROM a TO b
-
 };
-

@@ -11,8 +11,11 @@ public:
 	Collider(Actor* parent,  float inverseMass);
 	virtual ~Collider();
 
-	virtual Vec2 UpdatePos();
+	virtual Vec2 UpdatePos(Vec2 pos);
 
+	Collider* lastCollided;
+
+	float surfaceFriction = 1.f;
 	Actor* parent = nullptr;
 	Vec2 position = { 0,0 };
 	float invMass = 0.f;
@@ -27,6 +30,14 @@ public:
 	float radius;
 };
 
+struct Point {
+public:
+	Point(Vec2 dir, float mag) { dirFromParent = dir; magnitude = mag; }
+
+	Vec2 dirFromParent;
+	float magnitude;
+};
+
 class PolygonCollider : public Collider {
 public:
 	PolygonCollider(Actor* parent, float inverseMass);
@@ -34,20 +45,24 @@ public:
 	PolygonCollider(Actor* parent, Vec2 position, std::vector<Vec2> points, float inverseMass);
 	virtual ~PolygonCollider() override { Collider::~Collider(); }
 
-	virtual Vec2 UpdatePos() override;
+	virtual Vec2 UpdatePos(Vec2 pos) override;
 	void UpdatePoints();
 
 	std::vector<Vec2> GetPoints();
 
 protected:
-	std::vector<Vec2> points;
+	void ConstructPoints(std::vector<Vec2> points);
+
+protected:
+	std::vector<Vec2> vecPoints;
+	std::vector<Point> points;
 };
 
 class BoxCollider : public PolygonCollider {
 public:
 	BoxCollider(Actor* parent, Vec2 position = { 0,0 }, Vec2 dimensions = { 0,0 }, float inverseMass = 0.f);
 	virtual ~BoxCollider() override { PolygonCollider::~PolygonCollider(); }
-	virtual Vec2 UpdatePos() override;
+	virtual Vec2 UpdatePos(Vec2 pos) override;
 
 public:
 	Vec2 dimensions;

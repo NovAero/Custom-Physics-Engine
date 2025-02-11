@@ -48,11 +48,13 @@ public:
 	float GetTerminalVelocity() const;
 
 	void SetInverseMass(float inverseMass);
+	void SetIsGrounded(bool grounded);
 	void SetPosition(Vec2 pos);
 
 	//Reference access
 	RigidBody& GetRigidBody() const;
 	Collider& GetCollider() const;
+	RigidBody& GetLastCollidedRb() const;
 
 private:
 

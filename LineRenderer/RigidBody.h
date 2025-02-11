@@ -12,8 +12,8 @@ public:
 	//Dynamic Constructors
 	RigidBody(Actor* parent);
 	RigidBody(Actor* parent, Vec2 size);
-	RigidBody(Actor* parent, float drag, float friction);
-	RigidBody(Actor* parent, float drag, float friction, Vec2 size);
+	RigidBody(Actor* parent, float drag);
+	RigidBody(Actor* parent, float drag, Vec2 size);
 	
 	~RigidBody();
 
@@ -25,8 +25,8 @@ public:
 	void Bounce();
 
 	void HandleResistances(float delta);
+	void HandleSurfaceFriction(float friction, float delta);
 
-	bool GetIsGrounded() const { return isGrounded; }
 	bool GetIsDirty()const { return isDirty; }
 	Vec2 GetSize() const { return objectSize; }
 	float GetCurrentSpeed() const { return currentSpeed; }
@@ -37,6 +37,7 @@ public:
 
 	void SetIsDirty(bool dirty) { isDirty = dirty; }
 	void SetIsStatic(bool _static) { isStatic = _static; }
+	void SetShouldApplyFriction(bool b) { shouldApplyFriction = b; }
 
 protected:
 
@@ -47,14 +48,13 @@ protected:
 	Vec2 currentVelocity = { 0,0 };
 	Vec2 objectSize = { 1.f, 1.f };
 
-	float maxMagnitude = 5.f;
+	float maxMagnitude = 10.f;
 	
 	float currentSpeed = 1.0f;
-	float gravity = 0.098f;
-	float drag = 0.7f;
-	float friction = 0.65f;
+	float gravity = 9.8f;
+	float drag = 0.9f;
 
-	bool isGrounded = true;
+	bool shouldApplyFriction = false;
 	bool isBouncy = true;
 	bool isDirty = false;
 

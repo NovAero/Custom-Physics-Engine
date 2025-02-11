@@ -21,30 +21,23 @@ PhysicsApp::~PhysicsApp()
 
 void PhysicsApp::Initialise()
 {
-	player = new Actor(Vec2{ 4,4 }, ObjectShape::POLYGON, Vec2{9,2});
+	player = new Actor(Vec2{ 4,4 }, ObjectShape::CIRCLE, Vec2{9,2});
 	player->colour = Colour::GREEN;
 
 	objects.push_back(player);
-	
-	Actor* box1 = new Actor(Vec2{ 5,5 }, ObjectShape::POLYGON, Vec2{ 7,5 });
+	/*
+	Actor* box1 = new Actor(Vec2{ 5,5 }, ObjectShape::TRIANGLE, Vec2{ 20,7 });
 
-	objects.push_back(box1);
+	objects.push_back(box1);*/
 
-	objects.push_back(new Actor(Vec2{ 0.f, 0.f }, ObjectShape::SQUARE, Vec2{ 10, 5 }));
-	objects.push_back(new Actor(Vec2{ 30.f, -20.f }, ObjectShape::POLYGON, Vec2{4, 100 }));
-	objects.push_back(new Actor(Vec2{ -30.f, -20.5f }, ObjectShape::POLYGON, Vec2{ 4, 100 }));
+	objects.push_back(new Actor(Vec2{ 0.f, 0.f }, ObjectShape::SQUARE, Vec2{ 1000, 5 }));
+	objects[1]->GetCollider().surfaceFriction = 1.f;
 
-	objects[2]->SetInverseMass(0.f);
-	objects[2]->GetRigidBody().SetIsStatic(true);
-
-	objects[3]->SetInverseMass(0.f);
-	objects[3]->GetRigidBody().SetIsStatic(true);
-
-	objects[4]->SetInverseMass(0.f);
-	objects[4]->GetRigidBody().SetIsStatic(true);
+	objects[1]->SetInverseMass(0.f);
+	objects[1]->GetRigidBody().SetIsStatic(true);
 
 	for (float i = 1.f; i < 26; ++i) {
-		objects.push_back(new Actor(Vec2{ 1.f, i * 2}, ObjectShape::POLYGON, Vec2{6, 2}));
+		objects.push_back(new Actor(Vec2{ 1.f, i * 2}, ObjectShape::POLYGON, Vec2{4, 2}));
 	}
 }
 
@@ -61,15 +54,14 @@ void PhysicsApp::Update(float delta)
 	}
 	for (CollisionInfo& thisInfo : collisions)
 	{
-		lines->DrawLineWithArrow(thisInfo.colliderA->position, thisInfo.colliderA->position + thisInfo.collisionNormal * 1.0, Colour::RED, 0.3f);
-		lines->DrawLineWithArrow(thisInfo.colliderB->position, thisInfo.colliderB->position - thisInfo.collisionNormal * 1.0, Colour::RED, 0.3f);
+		//lines->DrawLineWithArrow(thisInfo.colliderA->position, thisInfo.colliderA->position + thisInfo.collisionNormal * 1.0, Colour::RED, 0.3f);
+		//lines->DrawLineWithArrow(thisInfo.colliderB->position, thisInfo.colliderB->position - thisInfo.collisionNormal * 1.0, Colour::RED, 0.3f);
 		thisInfo.Resolve();
 	}
 
 	for (int i = 0; i < objects.size(); ++i) {
 		objects[i]->Update(delta, cursorPos);
 	}
-
 
 	for (int i = 0; i < objects.size(); ++i) {
 		objects[i]->Draw(lines);
@@ -80,13 +72,13 @@ void PhysicsApp::Update(float delta)
 		float DistanceToCur = (player->GetWorldPosition() - cursorPos).GetMagnitude();
 
 		launchMagnitude = DistanceToCur >= player->GetRigidBody().GetTerminalVelocity() ? player->GetRigidBody().GetTerminalVelocity() : (player->GetWorldPosition() - cursorPos).GetMagnitude();
-		lines->DrawLineWithArrow(player->GetWorldPosition(), player->GetWorldPosition() + (Vec2(player->GetWorldPosition() - cursorPos).Normalise()) * launchMagnitude, Colour::RED);
+		lines->DrawLineWithArrow(player->GetWorldPosition(), player->GetWorldPosition() + (Vec2(player->GetWorldPosition() - cursorPos).Normalise()) * launchMagnitude * 2, Colour::RED);
 	}
 	else if(rightMouseDown && player->GetWorldPosition().y <= -10.0f) {
 		float DistanceToCur = (player->GetWorldPosition() - cursorPos).GetMagnitude();
 
 		launchMagnitude = DistanceToCur >= player->GetRigidBody().GetTerminalVelocity() ? player->GetRigidBody().GetTerminalVelocity() : (player->GetWorldPosition() - cursorPos).GetMagnitude();
-		lines->DrawLineWithArrow(Vec2{ player->GetWorldPosition().x ,-10.0f }, Vec2{ player->GetWorldPosition().x, -10.0f } + (Vec2(player->GetWorldPosition() - cursorPos).Normalise()) * launchMagnitude, Colour::RED);
+		lines->DrawLineWithArrow(Vec2{ player->GetWorldPosition().x ,-10.0f }, Vec2{ player->GetWorldPosition().x, -10.0f } + (Vec2(player->GetWorldPosition() - cursorPos).Normalise()) * launchMagnitude * 2 , Colour::RED);
 	}
 	
 }

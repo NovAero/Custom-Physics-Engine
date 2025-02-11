@@ -53,7 +53,7 @@ CollisionInfo BoxToBoxCollision(BoxCollider* a, BoxCollider* b)
 		overlapDirection = { 1.f,0 };
 		info.overlapAmount = h2Disp;
 	}
-	
+
 	//Collision Direction
 	info.collisionNormal = overlapDirection;
 
@@ -62,61 +62,71 @@ CollisionInfo BoxToBoxCollision(BoxCollider* a, BoxCollider* b)
 
 CollisionInfo CircleToPolyCollision(CircleCollider* a, PolygonCollider* b)
 {
-	//Essentially a poly to poly collision where the normal for the SAT is
-	//from the centre of the circle to the closest point to the centre of a in the poly
-	
 	CollisionInfo info;
 
 	info.colliderA = a;
 	info.colliderB = b;
 
-	float aMin = FLT_MAX;
-	float aMax = -FLT_MAX;
-	float bMin = FLT_MAX;
-	float bMax = -FLT_MAX;
 
-	Vec2 closestPoint = { FLT_MAX, FLT_MAX };
+	std::vector<Vec2> normals;
 
-	//Get closest point to centre
+	//Get hormals from a to b points
+	for (Vec2 currentPoint : b->GetPoints()) {
+		Vec2 current = currentPoint - a->position;
+		current.Normalise().RotateBy90();
+
+		normals.push_back(current);
+	}
+
+	//Normals of b
 	for (int i = 0; i < b->GetPoints().size(); ++i) {
 
-		if ((b->GetPoints()[i] - a->position).GetMagnitudeSquared() < (closestPoint - a->position).GetMagnitudeSquared()) {
-			closestPoint = b->GetPoints()[i];
+		int j = i + 1 >= b->GetPoints().size() ? 0 : i + 1;
+
+		Vec2 current = b->GetPoints()[j] - b->GetPoints()[i];
+		current.Normalise().RotateBy270();
+
+		normals.push_back(current);
+	}
+
+	float smallestDepth = FLT_MAX;
+	Vec2 smallestDepthNormal;
+
+	for (Vec2 currentNormal : normals) {
+
+		float aMin = FLT_MAX;
+		float aMax = -FLT_MAX;
+		float bMin = FLT_MAX;
+		float bMax = -FLT_MAX;
+
+		//A min and max can be set manually - no for loop needed, there's only 2 points being checked
+		aMax = Dot(a->position + (currentNormal * a->radius), currentNormal);
+		aMin = Dot(a->position + (-currentNormal * a->radius), currentNormal);
+
+		//B min and max
+		for (Vec2 currentPoint : b->GetPoints()) {
+			float projection = Dot(currentPoint, currentNormal);
+
+			if (projection < bMin) bMin = projection;
+			if (projection > bMax) bMax = projection;
+		}
+
+		float overlapA = aMax - bMin;
+		float overlapB = bMax - aMin;
+
+		//Smallest overlap direction and depth
+		if (overlapA < smallestDepth) {
+			smallestDepth = overlapA;
+			smallestDepthNormal = currentNormal;
+		}
+		if (overlapB < smallestDepth) {
+			smallestDepth = overlapB;
+			smallestDepthNormal = -currentNormal;
 		}
 	}
 
-	//Get vector FROM a pos to B closest point
-	Vec2 dirToClosest = closestPoint - a->position;
-	//Normalise to make purely directional
-	dirToClosest.Normalise();
-
-
-	//Along the normal, get the max/min of a and b
-	
-	//A min and max can be set manually
-	aMax = Dot(a->position + (dirToClosest * a->radius), dirToClosest);
-	aMin = Dot(a->position + (-dirToClosest * a->radius), dirToClosest);
-	
-	//B min and max
-	for (Vec2 currentPoint : b->GetPoints()) {
-		float projection = Dot(currentPoint, dirToClosest);
-
-		if (projection < bMin) bMin = projection;
-		if (projection > bMax) bMax = projection;
-	}
-
-	float overlapA = aMax - bMin;
-	float overlapB = bMax - aMin;
-
-	//Smallest overlap direction and depth
-	if (overlapA < overlapB) {
-		info.overlapAmount = overlapA;
-	}
-	else {
-		info.overlapAmount = overlapB;
-	}
-
-	info.collisionNormal = dirToClosest;
+	info.overlapAmount = smallestDepth;
+	info.collisionNormal = smallestDepthNormal;
 
 	return info;
 }
@@ -132,7 +142,9 @@ CollisionInfo PolyToPolyCollision(PolygonCollider* a, PolygonCollider* b)
 	//PolyA's normals
 	for (int i = 0; i < a->GetPoints().size(); ++i) {
 
-		Vec2 current = a->GetPoints()[(i+1)% a->GetPoints().size()] - a->GetPoints()[i];
+		int j = i + 1 >= a->GetPoints().size() ? 0 : i + 1;
+
+		Vec2 current = a->GetPoints()[j] - a->GetPoints()[i];
 		current.Normalise().RotateBy90();
 		normals.push_back(current);
 	}
@@ -140,7 +152,9 @@ CollisionInfo PolyToPolyCollision(PolygonCollider* a, PolygonCollider* b)
 	//PolyB's normals
 	for (int i = 0; i < b->GetPoints().size(); ++i) {
 
-		Vec2 current = b->GetPoints()[(i + 1) % b->GetPoints().size()] - b->GetPoints()[i];
+		int j = i + 1 >= b->GetPoints().size() ? 0 : i + 1;
+
+		Vec2 current = b->GetPoints()[j] - b->GetPoints()[i];
 		current.Normalise().RotateBy270();
 
 		normals.push_back(current);
@@ -184,7 +198,7 @@ CollisionInfo PolyToPolyCollision(PolygonCollider* a, PolygonCollider* b)
 			smallestDepthNormal = -currentNormal;
 		}
 	}
-	
+
 	info.overlapAmount = smallestDepth;
 	info.collisionNormal = smallestDepthNormal;
 
