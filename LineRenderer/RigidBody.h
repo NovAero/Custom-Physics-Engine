@@ -22,7 +22,7 @@ public:
 	void ApplyImpulse(Vec2 direction, float magnitude);
 	void ApplyConstantForce(Vec2 direction, float magnitude, float& timer, float& currentTime, float delta);
 	void SetVelocity(Vec2 velocity);
-	void Bounce();
+	Vec2 Bounce();
 
 	void HandleResistances(float delta);
 	void HandleSurfaceFriction(float friction, float delta);
@@ -39,6 +39,8 @@ public:
 	void SetIsStatic(bool _static) { isStatic = _static; }
 	void SetShouldApplyFriction(bool b) { shouldApplyFriction = b; }
 
+	Vec2 frictionDirection = { 1,0 };
+
 protected:
 
 	Actor* parent = nullptr;
@@ -53,6 +55,7 @@ protected:
 	float currentSpeed = 1.0f;
 	float gravity = 9.8f;
 	float drag = 0.9f;
+	float elasticity = 1.0f;
 
 	bool shouldApplyFriction = false;
 	bool isBouncy = true;

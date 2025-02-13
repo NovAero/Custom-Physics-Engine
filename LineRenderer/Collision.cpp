@@ -13,6 +13,9 @@ void CollisionInfo::Resolve()
 	colliderA->lastCollided = colliderB;
 	colliderB->lastCollided = colliderA;
 
+	colliderA->lastCollisionNormal = -collisionNormal;
+	colliderB->lastCollisionNormal = collisionNormal;
+
 	//TODO fix friction and other resistances to account for moveable objects not just -10.f
 
 	//TODO rewrite collision actions, rigidbody velocity and other class action handling

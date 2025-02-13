@@ -21,7 +21,7 @@ PhysicsApp::~PhysicsApp()
 
 void PhysicsApp::Initialise()
 {
-	player = new Actor(Vec2{ 4,4 }, ObjectShape::CIRCLE, Vec2{9,2});
+	player = new Actor(Vec2{ 4,4 }, ObjectShape::CIRCLE, Vec2{2,2});
 	player->colour = Colour::GREEN;
 	player->GetCollider().surfaceFriction = 0.2f;
 
@@ -41,17 +41,17 @@ void PhysicsApp::Initialise()
 	objects[2]->SetInverseMass(0.f);
 	objects[2]->GetRigidBody().SetIsStatic(true);
 
-	objects.push_back(new Actor(Vec2{ -50.f, 50.f }, ObjectShape::SQUARE, Vec2{ 5, 100 }));
+	objects.push_back(new Actor(Vec2{ -50.f, 50.f }, ObjectShape::POLYGON, Vec2{ 3, 100 }));
 	objects[3]->GetCollider().surfaceFriction = 0.1f;
 	objects[3]->SetInverseMass(0.f);
 	objects[3]->GetRigidBody().SetIsStatic(true);
 
-	for (float i = 1.f; i < 26; ++i) {
-		Actor* temp = new Actor(Vec2{ 1.f, i * 2 }, ObjectShape::POLYGON, Vec2{ 4, 2 });
+	/*for (float i = 1.f; i < 5; ++i) {
+		Actor* temp = new Actor(Vec2{ 1.f, i * 2 }, ObjectShape::CIRCLE, Vec2{ 4, 2 });
 		temp->GetCollider().surfaceFriction = 0.2f;
 
 		objects.push_back(temp);
-	}
+	}*/
 }
 
 void PhysicsApp::Update(float delta)
@@ -73,13 +73,12 @@ void PhysicsApp::Update(float delta)
 	}
 
 	for (int i = 0; i < objects.size(); ++i) {
-		objects[i]->Draw(lines);
-	}
-	
-	for (int i = 0; i < objects.size(); ++i) {
 		objects[i]->Update(delta, cursorPos);
 	}
 
+	for (int i = 0; i < objects.size(); ++i) {
+		objects[i]->Draw(lines);
+	}
 
 	//Draw line and set magnitude for launch
 	if (rightMouseDown && player->GetWorldPosition().y > -10.0f) {

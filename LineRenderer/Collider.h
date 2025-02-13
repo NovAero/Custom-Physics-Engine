@@ -14,6 +14,7 @@ public:
 	virtual Vec2 UpdatePos(Vec2 pos);
 
 	Collider* lastCollided;
+	Vec2 lastCollisionNormal;
 
 	float surfaceFriction = 0.5f; //Friction coefficient
 	Actor* parent = nullptr;

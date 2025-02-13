@@ -60,7 +60,7 @@ PolygonCollider::PolygonCollider(Actor* parent, Vec2 position, int numPoints, fl
 
 	std::vector<Vec2> plotPoints;
 
-	Vec2 plotPoint(0, -(parent->GetDrawSize().y / 2));
+	Vec2 plotPoint(0, (parent->GetDrawSize().y / 2));
 
 	for (int i = 0; i < numPoints; i++)
 	{

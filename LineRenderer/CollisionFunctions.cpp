@@ -70,8 +70,11 @@ CollisionInfo CircleToPolyCollision(CircleCollider* a, PolygonCollider* b)
 
 	std::vector<Vec2> normals;
 
+	std::vector<Vec2> bPoints = b->GetPoints();
+
+
 	//Get hormals from a to b points
-	for (Vec2 currentPoint : b->GetPoints()) {
+	for (Vec2 currentPoint : bPoints) {
 		Vec2 current = currentPoint - a->position;
 		current.Normalise().RotateBy90();
 
@@ -79,11 +82,11 @@ CollisionInfo CircleToPolyCollision(CircleCollider* a, PolygonCollider* b)
 	}
 
 	//Normals of b
-	for (int i = 0; i < b->GetPoints().size(); ++i) {
+	for (int i = 0; i < bPoints.size(); ++i) {
 
-		int j = i + 1 >= b->GetPoints().size() ? 0 : i + 1;
+		int j = i + 1 >= bPoints.size() ? 0 : i + 1;
 
-		Vec2 current = b->GetPoints()[j] - b->GetPoints()[i];
+		Vec2 current = bPoints[j] - bPoints[i];
 		current.Normalise().RotateBy270();
 
 		normals.push_back(current);
@@ -104,7 +107,7 @@ CollisionInfo CircleToPolyCollision(CircleCollider* a, PolygonCollider* b)
 		aMin = Dot(a->position + (-currentNormal * a->radius), currentNormal);
 
 		//B min and max
-		for (Vec2 currentPoint : b->GetPoints()) {
+		for (Vec2 currentPoint : bPoints) {
 			float projection = Dot(currentPoint, currentNormal);
 
 			if (projection < bMin) bMin = projection;
@@ -139,22 +142,25 @@ CollisionInfo PolyToPolyCollision(PolygonCollider* a, PolygonCollider* b)
 
 	std::vector<Vec2> normals;
 
+	std::vector<Vec2> aPoints = a->GetPoints();
+	std::vector<Vec2> bPoints = b->GetPoints();
+
 	//PolyA's normals
-	for (int i = 0; i < a->GetPoints().size(); ++i) {
+	for (int i = 0; i < aPoints.size(); ++i) {
 
-		int j = i + 1 >= a->GetPoints().size() ? 0 : i + 1;
+		int j = i + 1 >= aPoints.size() ? 0 : i + 1;
 
-		Vec2 current = a->GetPoints()[j] - a->GetPoints()[i];
+		Vec2 current = aPoints[j] - aPoints[i];
 		current.Normalise().RotateBy90();
 		normals.push_back(current);
 	}
 
 	//PolyB's normals
-	for (int i = 0; i < b->GetPoints().size(); ++i) {
+	for (int i = 0; i < bPoints.size(); ++i) {
 
-		int j = i + 1 >= b->GetPoints().size() ? 0 : i + 1;
+		int j = i + 1 >= bPoints.size() ? 0 : i + 1;
 
-		Vec2 current = b->GetPoints()[j] - b->GetPoints()[i];
+		Vec2 current = bPoints[j] - bPoints[i];
 		current.Normalise().RotateBy270();
 
 		normals.push_back(current);
@@ -171,14 +177,14 @@ CollisionInfo PolyToPolyCollision(PolygonCollider* a, PolygonCollider* b)
 		float bMin = FLT_MAX;
 		float bMax = -FLT_MAX;
 		//A min and max
-		for (Vec2 currentPoint : a->GetPoints()) {
+		for (Vec2 currentPoint : aPoints) {
 			float projection = Dot(currentPoint, currentNormal);
 
 			if (projection < aMin) aMin = projection;
 			if (projection > aMax) aMax = projection;
 		}
 		//B min and max
-		for (Vec2 currentPoint : b->GetPoints()) {
+		for (Vec2 currentPoint : bPoints) {
 			float projection = Dot(currentPoint, currentNormal);
 
 			if (projection < bMin) bMin = projection;

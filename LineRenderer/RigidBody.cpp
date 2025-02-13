@@ -41,7 +41,9 @@ void RigidBody::Update(float delta, Vec2 cursorPos)
 		parent->actorPosition += currentVelocity * currentSpeed * delta;
 	}
 	HandleResistances(delta);
+
 	shouldApplyFriction = false;
+	parent->GetCollider().lastCollisionNormal = { 1,0 };
 }
 
 void RigidBody::ApplyImpulse(Vec2 direction, float magnitude)
@@ -69,7 +71,8 @@ void RigidBody::SetVelocity(Vec2 vel)
 void RigidBody::HandleResistances(float delta)
 {
 	if (shouldApplyFriction) {
-		HandleSurfaceFriction(parent->GetCollider().lastCollided->surfaceFriction + parent->GetCollider().surfaceFriction, delta);
+		Bounce();
+		HandleSurfaceFriction( (parent->GetCollider().lastCollided->surfaceFriction + parent->GetCollider().surfaceFriction) * 0.5, delta);
 		
 	} else {
 		if (currentVelocity.x > 0.f) {
@@ -84,7 +87,9 @@ void RigidBody::HandleResistances(float delta)
 		currentVelocity.x = 0.f;
 	}
 
-	if (isDirty && !shouldApplyFriction) {
+	float flatGround = PseudoCross(parent->GetCollider().lastCollisionNormal, Vec2{ 0,1 });
+
+	if (isDirty && !shouldApplyFriction && flatGround != 0.f) {
 		currentVelocity.y -= gravity * delta;
 	}
 
@@ -93,14 +98,44 @@ void RigidBody::HandleResistances(float delta)
 
 void RigidBody::HandleSurfaceFriction(float friction, float delta)
 {
-	if (currentSpeed > 1.0f) {
-		ApplyImpulse(-currentVelocity.GetNormalised(), (friction * gravity) * delta);
+	//Set as the collision normal for code readability and lowering calls to parent->GetCollider()
+	Vec2 tangentNormal = parent->GetCollider().lastCollisionNormal;
+	float dir = PseudoCross(currentVelocity.GetNormalised(), tangentNormal);
+	
+	if (dir > 0.f) {
+		tangentNormal.RotateBy90(); //Coming from left to right, apply to left
+		ApplyImpulse(tangentNormal, friction * gravity * delta);
 	}
+	else if (dir < 0.f) {
+		tangentNormal.RotateBy270(); //Coming from right to left, apply to right
+		ApplyImpulse(tangentNormal, friction * gravity * delta);
+	}
+		frictionDirection = tangentNormal;
 }
 
-void RigidBody::Bounce()
+Vec2 RigidBody::Bounce()
 {
-	if (currentSpeed > 1.0f) {
-		ApplyImpulse(-currentVelocity.GetNormalised(),7.5);
+
+	//TODO rotate properly :/
+
+
+	Vec2 reflection = currentVelocity.GetNormalised();
+	Vec2 cNormal = parent->GetCollider().lastCollisionNormal;
+
+	//Calculate reflection angle as rotated by the angle between the normal and the current velocity
+	float dir = PseudoCross(cNormal, reflection);
+	float angle = AngleBetween(-cNormal, reflection); //Angle between normal and velocity 
+	angle = RadToDeg(angle);
+
+	if (dir > 0.f) { //Rotate to left
+		reflection = cNormal.RotateBy(90 + angle);
 	}
+	else if (dir < 0.f) { //Rotate to right
+		reflection = cNormal.RotateBy(270 - angle);
+	}
+
+	if (currentSpeed > 1.0f) {
+		ApplyImpulse(-reflection, currentSpeed * elasticity);
+	}
+	return -reflection;
 }
