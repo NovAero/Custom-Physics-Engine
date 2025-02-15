@@ -34,13 +34,17 @@ void RigidBody::Update(float delta, Vec2 cursorPos)
 { 
 	if (isStatic) return;
 	if (isDirty) {
+		
+		HandleResistances(delta);
+
 		if (currentVelocity.GetMagnitude() >= maxMagnitude) {
 			currentVelocity.SetMagnitude(maxMagnitude);
 			currentSpeed = maxMagnitude;
 		}
+
 		parent->actorPosition += currentVelocity * currentSpeed * delta;
 	}
-	HandleResistances(delta);
+	
 
 	shouldApplyFriction = false;
 	parent->GetCollider().lastCollisionNormal = { 1,0 };
@@ -70,28 +74,19 @@ void RigidBody::SetVelocity(Vec2 vel)
 
 void RigidBody::HandleResistances(float delta)
 {
+	
+	
 	if (shouldApplyFriction) {
 		Bounce();
 		HandleSurfaceFriction( (parent->GetCollider().lastCollided->surfaceFriction + parent->GetCollider().surfaceFriction) * 0.5, delta);
 		
 	} else {
-		if (currentVelocity.x > 0.f) {
-			currentVelocity.x -= drag * delta;
-		}
-		else {
-			currentVelocity.x += drag * delta;
+		if (currentSpeed > 0.5f) {
+			ApplyImpulse(-currentVelocity.GetNormalised(), drag * delta);
 		}
 	}
 	
-	if (abs(currentVelocity.x) <= 0.25f) {
-		currentVelocity.x = 0.f;
-	}
-
-	float flatGround = PseudoCross(parent->GetCollider().lastCollisionNormal, Vec2{ 0,1 });
-
-	if (isDirty && !shouldApplyFriction && flatGround != 0.f) {
-		currentVelocity.y -= gravity * delta;
-	}
+	currentVelocity.y -= gravity * delta;
 
 	currentSpeed = currentVelocity.GetMagnitude();
 }
@@ -110,32 +105,29 @@ void RigidBody::HandleSurfaceFriction(float friction, float delta)
 		tangentNormal.RotateBy270(); //Coming from right to left, apply to right
 		ApplyImpulse(tangentNormal, friction * gravity * delta);
 	}
-		frictionDirection = tangentNormal;
+	frictionDirection = tangentNormal;
 }
 
 Vec2 RigidBody::Bounce()
 {
-
-	//TODO rotate properly :/
-
-
 	Vec2 reflection = currentVelocity.GetNormalised();
 	Vec2 cNormal = parent->GetCollider().lastCollisionNormal;
 
 	//Calculate reflection angle as rotated by the angle between the normal and the current velocity
 	float dir = PseudoCross(cNormal, reflection);
 	float angle = AngleBetween(-cNormal, reflection); //Angle between normal and velocity 
-	angle = RadToDeg(angle);
 
-	if (dir > 0.f) { //Rotate to left
-		reflection = cNormal.RotateBy(90 + angle);
-	}
-	else if (dir < 0.f) { //Rotate to right
-		reflection = cNormal.RotateBy(270 - angle);
-	}
+	if (abs(dir) < 0.9f) { //Dont apply force if the cross is nearly a perfect 90 degrees, which turns it into a tangent force
 
-	if (currentSpeed > 1.0f) {
-		ApplyImpulse(-reflection, currentSpeed * elasticity);
+		if (dir > 0.f) { //Rotate to left
+			reflection = cNormal.RotateBy(angle);
+		}
+		else if (dir < 0.f) { //Rotate to right
+			reflection = cNormal.RotateBy(-angle);
+		}
+
+		SetVelocity(reflection * currentSpeed * elasticity);
 	}
+	
 	return -reflection;
 }

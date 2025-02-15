@@ -55,7 +55,7 @@ protected:
 	float currentSpeed = 1.0f;
 	float gravity = 9.8f;
 	float drag = 0.9f;
-	float elasticity = 1.0f;
+	float elasticity = 0.7f;
 
 	bool shouldApplyFriction = false;
 	bool isBouncy = true;

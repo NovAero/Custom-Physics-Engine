@@ -41,7 +41,7 @@ void PhysicsApp::Initialise()
 	objects[2]->SetInverseMass(0.f);
 	objects[2]->GetRigidBody().SetIsStatic(true);
 
-	objects.push_back(new Actor(Vec2{ -50.f, 50.f }, ObjectShape::POLYGON, Vec2{ 3, 100 }));
+	objects.push_back(new Actor(Vec2{ -50.f, 50.f }, ObjectShape::TRIANGLE, Vec2{ 250, 70}));
 	objects[3]->GetCollider().surfaceFriction = 0.1f;
 	objects[3]->SetInverseMass(0.f);
 	objects[3]->GetRigidBody().SetIsStatic(true);
