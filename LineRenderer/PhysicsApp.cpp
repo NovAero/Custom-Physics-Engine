@@ -65,6 +65,7 @@ void PhysicsApp::Update(float delta)
 			QueueCollision(&objects[i]->GetCollider(), &objects[j]->GetCollider());
 		}
 	}
+
 	for (CollisionInfo& thisInfo : collisions)
 	{
 		//lines->DrawLineWithArrow(thisInfo.colliderA->position, thisInfo.colliderA->position + thisInfo.collisionNormal * 1.0, Colour::RED, 0.3f);
@@ -87,13 +88,13 @@ void PhysicsApp::Update(float delta)
 		launchMagnitude = DistanceToCur >= player->GetRigidBody().GetTerminalVelocity() ? player->GetRigidBody().GetTerminalVelocity() : (player->GetWorldPosition() - cursorPos).GetMagnitude();
 		lines->DrawLineWithArrow(player->GetWorldPosition(), player->GetWorldPosition() + (Vec2(player->GetWorldPosition() - cursorPos).Normalise()) * launchMagnitude * 2, Colour::RED);
 	}
-	else if(rightMouseDown && player->GetWorldPosition().y <= -10.0f) {
+	else if (rightMouseDown && player->GetWorldPosition().y <= -10.0f) {
 		float DistanceToCur = (player->GetWorldPosition() - cursorPos).GetMagnitude();
 
 		launchMagnitude = DistanceToCur >= player->GetRigidBody().GetTerminalVelocity() ? player->GetRigidBody().GetTerminalVelocity() : (player->GetWorldPosition() - cursorPos).GetMagnitude();
-		lines->DrawLineWithArrow(Vec2{ player->GetWorldPosition().x ,-10.0f }, Vec2{ player->GetWorldPosition().x, -10.0f } + (Vec2(player->GetWorldPosition() - cursorPos).Normalise()) * launchMagnitude * 2 , Colour::RED);
+		lines->DrawLineWithArrow(Vec2{ player->GetWorldPosition().x ,-10.0f }, Vec2{ player->GetWorldPosition().x, -10.0f } + (Vec2(player->GetWorldPosition() - cursorPos).Normalise()) * launchMagnitude * 2, Colour::RED);
 	}
-	
+
 }
 
 void PhysicsApp::QueueCollision(Collider* a, Collider* b)
@@ -153,8 +154,12 @@ void PhysicsApp::OnRightRelease()
 {
 	Vec2 Direction = player->GetWorldPosition() - cursorPos;
 	Direction.Normalise();
+	
+	player->SetPosition(player->GetWorldPosition() + Vec2{ Direction * 0.1f });
 
-	player->GetRigidBody().ApplyImpulse(Direction, launchMagnitude);
+	player->GetRigidBody().SetVelocity(Direction * launchMagnitude);
+	player->GetRigidBody().SetShouldApplyFriction(false);
+	player->GetRigidBody().SetIsDirty(true);
 
 	rightMouseDown = false;
 
