@@ -55,8 +55,8 @@ PolygonCollider::PolygonCollider(Actor* parent, float inverseMass) : Collider(pa
 PolygonCollider::PolygonCollider(Actor* parent, Vec2 position, int numPoints, float inverseMass) : PolygonCollider(parent, inverseMass)
 {
 	//Angles to rotate around for a perfect shape
-	float cosAngle = cos(2 * PI / numPoints);
-	float sinAngle = -sin(2 * PI / numPoints);
+	float cosAngle = cosf(2 * PI / numPoints);
+	float sinAngle = -sinf(2 * PI / numPoints);
 
 	std::vector<Vec2> plotPoints;
 

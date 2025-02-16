@@ -76,7 +76,7 @@ void RigidBody::HandleResistances(float delta)
 {
 	if (shouldApplyFriction) {
 		Bounce();
-		HandleSurfaceFriction( (parent->GetCollider().lastCollided->surfaceFriction + parent->GetCollider().surfaceFriction) * 0.5, delta);
+		HandleSurfaceFriction( (parent->GetCollider().lastCollided->surfaceFriction + parent->GetCollider().surfaceFriction) * 0.5f, delta);
 		
 	} else {
 		if (currentSpeed > 0.5f) {
@@ -84,7 +84,7 @@ void RigidBody::HandleResistances(float delta)
 		}
 	}
 	
-	currentVelocity.y -= gravity * delta;
+	currentVelocity.y -= GRAVITY * delta;
 
 	currentSpeed = currentVelocity.GetMagnitude();
 }
@@ -97,11 +97,11 @@ void RigidBody::HandleSurfaceFriction(float friction, float delta)
 	
 	if (dir > 0.f) {
 		tangentNormal.RotateBy90(); //Coming from left to right, apply to left
-		ApplyImpulse(tangentNormal, friction * gravity * delta);
+		ApplyImpulse(tangentNormal, friction * GRAVITY * delta);
 	}
 	else if (dir < 0.f) {
 		tangentNormal.RotateBy270(); //Coming from right to left, apply to right
-		ApplyImpulse(tangentNormal, friction * gravity * delta);
+		ApplyImpulse(tangentNormal, friction * GRAVITY * delta);
 	}
 	frictionDirection = tangentNormal;
 }

@@ -4,7 +4,7 @@
 
 class Actor;
 
-const int GRAVITY = 0.098f;
+const float GRAVITY = 9.8f;
 
 class RigidBody {
 public:
@@ -56,7 +56,6 @@ protected:
 	float maxMagnitude = 10.f;
 	
 	float currentSpeed = 1.0f;
-	float gravity = 9.8f;
 	float drag = 0.9f;
 	float elasticity = 0.7f;
 

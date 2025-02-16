@@ -21,15 +21,11 @@ PhysicsApp::~PhysicsApp()
 
 void PhysicsApp::Initialise()
 {
-	player = new Actor(Vec2{ 4,4 }, ObjectShape::CIRCLE, Vec2{2,2});
+	player = new Actor(Vec2{ 4,4 }, ObjectShape::CIRCLE, Vec2{0,9});
 	player->colour = Colour::GREEN;
 	player->GetCollider().surfaceFriction = 0.2f;
 
 	objects.push_back(player);
-	/*
-	Actor* box1 = new Actor(Vec2{ 5,5 }, ObjectShape::TRIANGLE, Vec2{ 20,7 });
-
-	objects.push_back(box1);*/
 
 	objects.push_back(new Actor(Vec2{ 0.f, 0.f }, ObjectShape::SQUARE, Vec2{ 100, 5 }));
 	objects[1]->GetCollider().surfaceFriction = 0.1f;
@@ -47,8 +43,8 @@ void PhysicsApp::Initialise()
 	objects[3]->GetRigidBody().SetIsStatic(true);
 
 	for (float i = 1.f; i < 15; ++i) {
-		Actor* temp = new Actor(Vec2{ 1.f, i * 2 }, ObjectShape::CIRCLE, Vec2{ 6, 2 });
-		temp->GetCollider().surfaceFriction = 0.001f;
+		Actor* temp = new Actor(Vec2{ 1.f, i * 2 }, ObjectShape::SQUARE, Vec2{ 3, 2 });
+		temp->GetCollider().surfaceFriction = 0.15f;
 		temp->GetRigidBody().SetElasticityPerc(0.9f);
 
 		objects.push_back(temp);

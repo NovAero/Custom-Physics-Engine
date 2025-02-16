@@ -43,9 +43,8 @@ void Actor::Draw(LineRenderer* lines)
 {
 	if (debug) {
 		lines->DrawCircle(actorPosition, 0.5f, Colour::CYAN);
-		lines->DrawLineWithArrow(actorPosition, actorPosition + (rb->frictionDirection * (collider->surfaceFriction * rb->gravity)),Colour::ORANGE);
+		lines->DrawLineWithArrow(actorPosition, actorPosition + (rb->frictionDirection * (collider->surfaceFriction * GRAVITY)),Colour::ORANGE);
 	}
-	
 	
 	switch (shape) {
 	case CIRCLE:
@@ -222,7 +221,7 @@ void Actor::SetColliderByEnum(ObjectShape shape)
 		temp.push_back(Vec2(actorPosition.x, actorPosition.y + drawSize.y / 2));
 		temp.push_back(Vec2(actorPosition.x + drawSize.x / 2, actorPosition.y - drawSize.y / 2));
 
-		collider = new PolygonCollider(this, actorPosition, temp, 0.5 * (drawSize.x*drawSize.y));
+		collider = new PolygonCollider(this, actorPosition, temp, 0.5f * (drawSize.x*drawSize.y));
 		break;
 	}
 	case LINE:
@@ -238,7 +237,7 @@ void Actor::SetColliderByEnum(ObjectShape shape)
 	}
 	case POLYGON:
 	{
-		collider = new PolygonCollider(this, actorPosition, drawSize.x, drawSize.y * drawSize.y);
+		collider = new PolygonCollider(this, actorPosition, (int)drawSize.x, drawSize.y * drawSize.y);
 		break;
 	}
 	}
