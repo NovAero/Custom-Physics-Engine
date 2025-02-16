@@ -41,14 +41,12 @@ public:
 
 	//RigidBody Functions
 	Vec2 GetCurrentVelocity() const;
-	bool GetIsGrounded() const;
 	bool GetIsDirty() const;
 	Vec2 GetRbSize() const;
 	float GetCurrentSpeed() const;
 	float GetTerminalVelocity() const;
 
 	void SetInverseMass(float inverseMass);
-	void SetIsGrounded(bool grounded);
 	void SetPosition(Vec2 pos);
 
 	//Reference access

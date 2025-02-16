@@ -74,8 +74,6 @@ void RigidBody::SetVelocity(Vec2 vel)
 
 void RigidBody::HandleResistances(float delta)
 {
-	
-	
 	if (shouldApplyFriction) {
 		Bounce();
 		HandleSurfaceFriction( (parent->GetCollider().lastCollided->surfaceFriction + parent->GetCollider().surfaceFriction) * 0.5, delta);
@@ -116,7 +114,7 @@ Vec2 RigidBody::Bounce()
 	//Calculate reflection angle as rotated by the angle between the normal and the current velocity
 	float dir = PseudoCross(cNormal, reflection);
 	float angle = AngleBetween(-cNormal, reflection); //Angle between normal and velocity 
-
+	
 	if (abs(dir) < 0.9f) { //Dont apply force if the cross is nearly a perfect 90 degrees, which turns it into a tangent force
 
 		if (dir > 0.f) { //Rotate to left

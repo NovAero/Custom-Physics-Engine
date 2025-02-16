@@ -3,7 +3,7 @@
 #include "RigidBody.h"
 #include "Collider.h"
 
-bool debug = true;
+bool debug = false;
 
 Actor::Actor()
 {
@@ -50,7 +50,6 @@ void Actor::Draw(LineRenderer* lines)
 	switch (shape) {
 	case CIRCLE:
 		lines->DrawCircle(actorPosition, drawSize.y / 2, colour);
-		lines->DrawCircle(actorPosition, drawSize.y, Colour::CYAN);
 		break;
 	case SQUARE:
 	{

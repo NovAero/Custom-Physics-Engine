@@ -36,22 +36,23 @@ void PhysicsApp::Initialise()
 	objects[1]->SetInverseMass(0.f);
 	objects[1]->GetRigidBody().SetIsStatic(true);
 
-	objects.push_back(new Actor(Vec2{ 50.f, 50.f }, ObjectShape::SQUARE, Vec2{ 5, 100 }));
+	objects.push_back(new Actor(Vec2{ 50.f, 0.f }, ObjectShape::POLYGON, Vec2{ 4, 100 }));
 	objects[2]->GetCollider().surfaceFriction = 0.1f;
 	objects[2]->SetInverseMass(0.f);
 	objects[2]->GetRigidBody().SetIsStatic(true);
 
-	objects.push_back(new Actor(Vec2{ -50.f, 50.f }, ObjectShape::TRIANGLE, Vec2{ 250, 70}));
+	objects.push_back(new Actor(Vec2{ -50.f, 0.f }, ObjectShape::POLYGON, Vec2{ 4, 100}));
 	objects[3]->GetCollider().surfaceFriction = 0.1f;
 	objects[3]->SetInverseMass(0.f);
 	objects[3]->GetRigidBody().SetIsStatic(true);
 
-	/*for (float i = 1.f; i < 5; ++i) {
-		Actor* temp = new Actor(Vec2{ 1.f, i * 2 }, ObjectShape::CIRCLE, Vec2{ 4, 2 });
-		temp->GetCollider().surfaceFriction = 0.2f;
+	for (float i = 1.f; i < 15; ++i) {
+		Actor* temp = new Actor(Vec2{ 1.f, i * 2 }, ObjectShape::CIRCLE, Vec2{ 6, 2 });
+		temp->GetCollider().surfaceFriction = 0.001f;
+		temp->GetRigidBody().SetElasticityPerc(0.9f);
 
 		objects.push_back(temp);
-	}*/
+	}
 }
 
 void PhysicsApp::Update(float delta)

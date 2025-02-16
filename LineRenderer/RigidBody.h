@@ -38,7 +38,10 @@ public:
 	void SetIsDirty(bool dirty) { isDirty = dirty; }
 	void SetIsStatic(bool _static) { isStatic = _static; }
 	void SetShouldApplyFriction(bool b) { shouldApplyFriction = b; }
+	void SetElasticityPerc(float ePercent) { elasticity = ePercent; }
 
+
+	//Debug
 	Vec2 frictionDirection = { 1,0 };
 
 protected:
