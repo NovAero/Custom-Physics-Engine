@@ -162,9 +162,7 @@
     <ClCompile Include="Collision.cpp" />
     <ClCompile Include="CollisionFunctions.cpp" />
     <ClCompile Include="Colour.cpp" />
-    <ClCompile Include="DotClicker.cpp" />
     <ClCompile Include="EntryPoint.cpp" />
-    <ClCompile Include="Example.cpp" />
     <ClCompile Include="glad.c" />
     <ClCompile Include="GLFWCallbacks.cpp" />
     <ClCompile Include="Grid.cpp" />
@@ -197,8 +195,6 @@
     <ClInclude Include="Collision.h" />
     <ClInclude Include="CollisionFunctions.h" />
     <ClInclude Include="Colour.h" />
-    <ClInclude Include="DotClicker.h" />
-    <ClInclude Include="Example.h" />
     <ClInclude Include="glad.h" />
     <ClInclude Include="GLFWCallbacks.h" />
     <ClInclude Include="Graphics.h" />

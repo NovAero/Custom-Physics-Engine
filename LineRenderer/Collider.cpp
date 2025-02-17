@@ -99,6 +99,11 @@ std::vector<Vec2> PolygonCollider::GetPoints()
 	return vecPoints;
 }
 
+std::vector<Vec2> PolygonCollider::GetEdgeNormals()
+{
+	return edgeNormals;
+}
+
 void PolygonCollider::ConstructPoints(std::vector<Vec2> points)
 {
 	vecPoints = points;
@@ -106,5 +111,14 @@ void PolygonCollider::ConstructPoints(std::vector<Vec2> points)
 	for (Vec2 currentPoint : points) {
 		Point calcPoint = Point{ (position - currentPoint).GetNormalised(),(position - currentPoint).GetMagnitude() };
 		this->points.push_back(calcPoint);
+	}
+
+	for (int i = 0; i < vecPoints.size(); ++i) {
+
+		int j = i + 1 >= vecPoints.size() ? 0 : i + 1;
+
+		Vec2 current = vecPoints[j] - vecPoints[i];
+		current.Normalise().RotateBy90();
+		edgeNormals.push_back(current);
 	}
 }

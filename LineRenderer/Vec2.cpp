@@ -179,5 +179,5 @@ float PseudoCross(Vec2 a, Vec2 b)
 
 float AngleBetween(Vec2 a, Vec2 b)
 {
-	return acosf(Dot(a, b));
+	return acosf(Dot(a.GetNormalised(), b.GetNormalised()));
 }

@@ -17,6 +17,8 @@ public:
 	Vec2 lastCollisionNormal;
 
 	float surfaceFriction = 0.5f; //Friction coefficient
+	float elasticity = 0.5f;
+
 	Actor* parent = nullptr;
 	Vec2 position = { 0,0 };
 	float invMass = 0.f;
@@ -50,6 +52,7 @@ public:
 	void UpdatePoints();
 
 	std::vector<Vec2> GetPoints();
+	std::vector<Vec2> GetEdgeNormals();
 
 protected:
 	void ConstructPoints(std::vector<Vec2> points);
@@ -57,6 +60,7 @@ protected:
 protected:
 	std::vector<Vec2> vecPoints;
 	std::vector<Point> points;
+	std::vector<Vec2> edgeNormals;
 };
 
 class BoxCollider : public PolygonCollider {

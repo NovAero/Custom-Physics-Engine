@@ -25,18 +25,17 @@ void CollisionInfo::Resolve()
 
 	//Collider A
 	if (colliderA->invMass != 0.f) {
-		colliderA->parent->SetPosition((colliderA->position) - collisionNormal * overlapAmount * colliderA->invMass / totalInvMass);
-		if (colliderB->parent->GetRigidBody().GetIsBouncy()) {
-			colliderA->parent->GetRigidBody().ApplyImpulse(-collisionNormal, totalSpeed / colliderA->invMass);
-			colliderA->parent->GetRigidBody().SetShouldApplyFriction(true);
-		}
+		float depenCalc = colliderB->invMass == 0 ? overlapAmount : overlapAmount * colliderA->invMass / totalInvMass;
+		colliderA->parent->SetPosition((colliderA->position) - collisionNormal * depenCalc);
+		colliderA->parent->GetRigidBody().ApplyImpulse(-collisionNormal, totalSpeed / colliderA->invMass);
+		colliderA->parent->GetRigidBody().SetShouldApplyFriction(true);
+		
 	}
 	//Collider B
 	if (colliderB->invMass != 0.f) {
-		colliderB->parent->SetPosition((colliderB->position) + collisionNormal * overlapAmount * colliderB->invMass / totalInvMass);
-		if (colliderA->parent->GetRigidBody().GetIsBouncy()) {
-			colliderB->parent->GetRigidBody().ApplyImpulse(collisionNormal, totalSpeed / colliderB->invMass);
-			colliderB->parent->GetRigidBody().SetShouldApplyFriction(true);
-		}
+		float depenCalc = colliderA->invMass == 0 ? overlapAmount : overlapAmount * colliderB->invMass / totalInvMass;
+		colliderB->parent->SetPosition((colliderB->position) + collisionNormal * depenCalc);
+		colliderB->parent->GetRigidBody().ApplyImpulse(collisionNormal, totalSpeed/colliderB->invMass);
+		colliderB->parent->GetRigidBody().SetShouldApplyFriction(true);
 	}
 }

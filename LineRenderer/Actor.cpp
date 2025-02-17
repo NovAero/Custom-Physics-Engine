@@ -35,7 +35,6 @@ Actor::Actor(RigidBody* rb, Collider* col)
 void Actor::Update(float delta, Vec2 cursorPos)
 {
 	rb->Update(delta, cursorPos);
-	
 	collider->UpdatePos(actorPosition);
 }
 
@@ -183,7 +182,7 @@ void Actor::SetInverseMass(float inverseMass)
 void Actor::SetPosition(Vec2 pos)
 {
 	actorPosition = pos;
-	collider->position = pos;
+	collider->UpdatePos(pos);
 }
 
 RigidBody& Actor::GetRigidBody() const

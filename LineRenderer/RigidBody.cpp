@@ -34,7 +34,7 @@ void RigidBody::Update(float delta, Vec2 cursorPos)
 { 
 	if (isStatic) return;
 	if (isDirty) {
-		
+
 		HandleResistances(delta);
 
 		if (currentVelocity.GetMagnitude() >= maxMagnitude) {
@@ -44,7 +44,9 @@ void RigidBody::Update(float delta, Vec2 cursorPos)
 
 		parent->actorPosition += currentVelocity * currentSpeed * delta;
 	}
-	
+	else {
+		currentVelocity = Vec2{ 0.f,0.f };
+	}
 
 	shouldApplyFriction = false;
 	parent->GetCollider().lastCollisionNormal = { 1,0 };
@@ -74,6 +76,7 @@ void RigidBody::SetVelocity(Vec2 vel)
 
 void RigidBody::HandleResistances(float delta)
 {
+
 	if (shouldApplyFriction) {
 		Bounce();
 		HandleSurfaceFriction( (parent->GetCollider().lastCollided->surfaceFriction + parent->GetCollider().surfaceFriction) * 0.5f, delta);
@@ -93,39 +96,48 @@ void RigidBody::HandleSurfaceFriction(float friction, float delta)
 {
 	//Set as the collision normal for code readability and lowering calls to parent->GetCollider()
 	Vec2 tangentNormal = parent->GetCollider().lastCollisionNormal;
+	float fs = friction * Dot(tangentNormal, GRAVITY_VEC2);
 	float dir = PseudoCross(currentVelocity.GetNormalised(), tangentNormal);
 	
 	if (dir > 0.f) {
 		tangentNormal.RotateBy90(); //Coming from left to right, apply to left
-		ApplyImpulse(tangentNormal, friction * GRAVITY * delta);
 	}
 	else if (dir < 0.f) {
 		tangentNormal.RotateBy270(); //Coming from right to left, apply to right
-		ApplyImpulse(tangentNormal, friction * GRAVITY * delta);
 	}
+
+	ApplyImpulse(-tangentNormal, fs * delta);
+
+	//Debug
 	frictionDirection = tangentNormal;
+}
+
+void RigidBody::SetElasticityPerc(float ePercent)
+{
+	parent->GetCollider().elasticity = ePercent;
 }
 
 Vec2 RigidBody::Bounce()
 {
 	Vec2 reflection = currentVelocity.GetNormalised();
 	Vec2 cNormal = parent->GetCollider().lastCollisionNormal;
+	float elasticity = 0.5f * (parent->GetCollider().elasticity + parent->GetCollider().lastCollided->elasticity);
 
 	//Calculate reflection angle as rotated by the angle between the normal and the current velocity
 	float dir = PseudoCross(cNormal, reflection);
 	float angle = AngleBetween(-cNormal, reflection); //Angle between normal and velocity 
 	
-	if (abs(dir) < 0.9f) { //Dont apply force if the cross is nearly a perfect 90 degrees, which turns it into a tangent force
-
-		if (dir > 0.f) { //Rotate to left
-			reflection = cNormal.RotateBy(angle);
+	if (currentSpeed * elasticity >= 0.5f) {
+		if (abs(dir) < 0.9f) { //Dont apply forcea if the cross is nearly a perfect 90 degrees, which turns it into a tangent force
+			if (dir > 0.f) { //Rotate to left
+				reflection = cNormal.RotateBy(angle);
+			}
+			else if (dir < 0.f) { //Rotate to right
+				reflection = cNormal.RotateBy(-angle);
+			}
+			ApplyImpulse(-currentVelocity.GetNormalised(), currentSpeed);
+			ApplyImpulse(reflection, currentSpeed * elasticity);
 		}
-		else if (dir < 0.f) { //Rotate to right
-			reflection = cNormal.RotateBy(-angle);
-		}
-
-		SetVelocity(reflection * currentSpeed * elasticity);
 	}
-	
-	return -reflection;
+	return reflection;
 }

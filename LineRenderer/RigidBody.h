@@ -5,6 +5,7 @@
 class Actor;
 
 const float GRAVITY = 9.8f;
+const Vec2 GRAVITY_VEC2 = { 0, -GRAVITY };
 
 class RigidBody {
 public:
@@ -32,13 +33,12 @@ public:
 	float GetCurrentSpeed() const { return currentSpeed; }
 	Vec2 GetCurrentVelocity() const { return currentVelocity; }
 	float GetTerminalVelocity() const { return maxMagnitude; }
-	bool GetIsBouncy() const { return isBouncy; }
 	bool GetIsStatic() const { return isStatic; }
 
 	void SetIsDirty(bool dirty) { isDirty = dirty; }
 	void SetIsStatic(bool _static) { isStatic = _static; }
 	void SetShouldApplyFriction(bool b) { shouldApplyFriction = b; }
-	void SetElasticityPerc(float ePercent) { elasticity = ePercent; }
+	void SetElasticityPerc(float ePercent);
 
 
 	//Debug
@@ -56,12 +56,10 @@ protected:
 	float maxMagnitude = 10.f;
 	
 	float currentSpeed = 1.0f;
-	float drag = 0.9f;
-	float elasticity = 0.7f;
+	float drag = 0.5f;
 
 	bool shouldApplyFriction = false;
-	bool isBouncy = true;
-	bool isDirty = false;
+	bool isDirty = true;
 
 	bool isStatic = false;
 

@@ -67,13 +67,11 @@ CollisionInfo CircleToPolyCollision(CircleCollider* a, PolygonCollider* b)
 	info.colliderA = a;
 	info.colliderB = b;
 
-
 	std::vector<Vec2> normals;
 
 	std::vector<Vec2> bPoints = b->GetPoints();
 
-
-	//Get hormals from a to b points
+	//Get normals from a to b points
 	for (Vec2 currentPoint : bPoints) {
 		Vec2 current = currentPoint - a->position;
 		current.Normalise().RotateBy90();
@@ -81,19 +79,13 @@ CollisionInfo CircleToPolyCollision(CircleCollider* a, PolygonCollider* b)
 		normals.push_back(current);
 	}
 
-	//Normals of b
-	for (int i = 0; i < bPoints.size(); ++i) {
-
-		int j = i + 1 >= bPoints.size() ? 0 : i + 1;
-
-		Vec2 current = bPoints[j] - bPoints[i];
-		current.Normalise().RotateBy270();
-
-		normals.push_back(current);
+	//b normals
+	for (Vec2 normal : b->GetEdgeNormals()) {
+		normals.push_back(normal);
 	}
 
 	float smallestDepth = FLT_MAX;
-	Vec2 smallestDepthNormal;
+	Vec2 smallestDepthNormal = { 0,1 };
 
 	for (Vec2 currentNormal : normals) {
 
@@ -128,6 +120,11 @@ CollisionInfo CircleToPolyCollision(CircleCollider* a, PolygonCollider* b)
 		}
 	}
 
+	if (smallestDepth == FLT_MAX) { //in case of breaks in positional data
+		smallestDepth = -1.f;
+		smallestDepthNormal = { 0,1 };
+	}
+	
 	info.overlapAmount = smallestDepth;
 	info.collisionNormal = smallestDepthNormal;
 
@@ -146,24 +143,13 @@ CollisionInfo PolyToPolyCollision(PolygonCollider* a, PolygonCollider* b)
 	std::vector<Vec2> bPoints = b->GetPoints();
 
 	//PolyA's normals
-	for (int i = 0; i < aPoints.size(); ++i) {
-
-		int j = i + 1 >= aPoints.size() ? 0 : i + 1;
-
-		Vec2 current = aPoints[j] - aPoints[i];
-		current.Normalise().RotateBy90();
-		normals.push_back(current);
+	for (Vec2 normal : a->GetEdgeNormals()) {
+		normals.push_back(normal);
 	}
 
 	//PolyB's normals
-	for (int i = 0; i < bPoints.size(); ++i) {
-
-		int j = i + 1 >= bPoints.size() ? 0 : i + 1;
-
-		Vec2 current = bPoints[j] - bPoints[i];
-		current.Normalise().RotateBy270();
-
-		normals.push_back(current);
+	for (Vec2 normal : b->GetEdgeNormals()) {
+		normals.push_back(normal);
 	}
 
 	float smallestDepth = FLT_MAX;
