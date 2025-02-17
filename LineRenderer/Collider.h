@@ -17,7 +17,7 @@ public:
 	Vec2 lastCollisionNormal;
 
 	float surfaceFriction = 0.5f; //Friction coefficient
-	float elasticity = 0.5f;
+	float elasticity = 0.9f;
 
 	Actor* parent = nullptr;
 	Vec2 position = { 0,0 };

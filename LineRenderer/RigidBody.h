@@ -21,12 +21,13 @@ public:
 	virtual void Update(float delta, Vec2 cursorPos);
 
 	void ApplyImpulse(Vec2 direction, float magnitude);
+	void ApplyImpulse(Vec2 impulse);
 	void ApplyConstantForce(Vec2 direction, float magnitude, float& timer, float& currentTime, float delta);
 	void SetVelocity(Vec2 velocity);
-	Vec2 Bounce();
+	void Bounce(Vec2 tangent);
 
 	void HandleResistances(float delta);
-	void HandleSurfaceFriction(float friction, float delta);
+	Vec2 HandleSurfaceFriction(float friction, float delta);
 
 	bool GetIsDirty()const { return isDirty; }
 	Vec2 GetSize() const { return objectSize; }
@@ -59,7 +60,7 @@ protected:
 	float drag = 0.5f;
 
 	bool shouldApplyFriction = false;
-	bool isDirty = true;
+	bool isDirty = false;
 
 	bool isStatic = false;
 
