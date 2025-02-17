@@ -37,15 +37,14 @@ void RigidBody::Update(float delta, Vec2 cursorPos)
 
 		HandleResistances(delta);
 
-		if (currentVelocity.GetMagnitude() >= maxMagnitude) {
+
+		if (currentSpeed >= maxMagnitude) {
 			currentVelocity.SetMagnitude(maxMagnitude);
 			currentSpeed = maxMagnitude;
 		}
 
+
 		parent->actorPosition += currentVelocity * currentSpeed * delta;
-	}
-	else {
-		currentVelocity = Vec2{ 0.f,0.f };
 	}
 
 	shouldApplyFriction = false;
@@ -82,19 +81,18 @@ void RigidBody::SetVelocity(Vec2 vel)
 
 void RigidBody::HandleResistances(float delta)
 {
-
 	if (shouldApplyFriction) {
 		Vec2 tan = HandleSurfaceFriction( (parent->GetCollider().lastCollided->surfaceFriction + parent->GetCollider().surfaceFriction) * 0.5f, delta);
 		Bounce(tan);
 		
 	} else {
-		if (currentSpeed > 0.5f) {
+		if (currentSpeed > staticFriction) {
 			ApplyImpulse(-currentVelocity.GetNormalised(), drag * delta);
 		}
 	}
-	
-	currentVelocity.y -= GRAVITY * delta;
 
+	//Calculate speed after resistances
+	currentVelocity.y -= GRAVITY * delta;
 	currentSpeed = currentVelocity.GetMagnitude();
 }
 
@@ -104,15 +102,17 @@ Vec2 RigidBody::HandleSurfaceFriction(float friction, float delta)
 	Vec2 tangentNormal = parent->GetCollider().lastCollisionNormal;
 	float fs = friction * Dot(tangentNormal, GRAVITY_VEC2);
 	float dir = PseudoCross(currentVelocity.GetNormalised(), tangentNormal);
-	
+
 	if (dir > 0.f) {
 		tangentNormal.RotateBy90(); //Coming from left to right, apply to left
+		ApplyImpulse(-tangentNormal, fs * delta);
 	}
 	else if (dir < 0.f) {
 		tangentNormal.RotateBy270(); //Coming from right to left, apply to right
+		ApplyImpulse(-tangentNormal, fs * delta);
 	}
 
-	ApplyImpulse(-tangentNormal, fs * delta);
+	
 
 	//Debug
 	frictionDirection = tangentNormal;
@@ -127,12 +127,18 @@ void RigidBody::SetElasticityPerc(float ePercent)
 
 void RigidBody::Bounce(Vec2 tangent)
 {
-
 	Vec2 cNormal = parent->GetCollider().lastCollisionNormal;
 	float elasticity = 0.5f * (parent->GetCollider().elasticity + parent->GetCollider().lastCollided->elasticity);
 	float totalInvMass = parent->GetCollider().invMass + parent->GetCollider().lastCollided->invMass;
 
-	float relNormVel = Dot(currentVelocity, cNormal);
+	float relNormVel = Dot(currentVelocity * currentSpeed - currentVelocity, cNormal);
 
-	ApplyImpulse(cNormal, (-(1 + elasticity) * relNormVel) / totalInvMass );
+	//Apply force along the normal, flipping direction and pushing based on elasticity
+	ApplyImpulse(cNormal, (-(elasticity)*relNormVel) / totalInvMass);
+}
+
+void RigidBody::Stop()
+{
+	currentVelocity = Vec2{ 0,0 };
+	currentSpeed = 0.f;
 }

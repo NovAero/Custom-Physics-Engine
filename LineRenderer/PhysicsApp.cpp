@@ -23,33 +23,33 @@ void PhysicsApp::Initialise()
 {
 	player = new Actor(Vec2{ 100.f,4.f }, ObjectShape::CIRCLE, Vec2{0,9});
 	player->colour = Colour::GREEN;
-	player->GetCollider().surfaceFriction = 0.1f;
-	player->GetCollider().invMass = 10.f;
+	player->GetCollider().surfaceFriction = 0.5f;
+	player->GetCollider().invMass = 5.f;
 
 	objects.push_back(player);
 
-	objects.push_back(new Actor(Vec2{ 0.f, -78.5f }, ObjectShape::POLYGON, Vec2{ 6, 100 }));
-	objects[1]->GetCollider().surfaceFriction = 0.1f;
+	objects.push_back(new Actor(Vec2{ 0.f, -100.f }, ObjectShape::LINE, Vec2{ 100, 6 }));
+	objects[1]->GetCollider().surfaceFriction = 0.7f;
 	objects[1]->SetInverseMass(0.f);
 	objects[1]->GetRigidBody().SetIsStatic(true);
 
-	objects.push_back(new Actor(Vec2{ 45.f, 0.f }, ObjectShape::POLYGON, Vec2{ 6, 100 }));
-	objects[2]->GetCollider().surfaceFriction = 0.1f;
+	objects.push_back(new Actor(Vec2{ 45.f, -50.f }, ObjectShape::SQUARE, Vec2{ 6, 100 }));
+	objects[2]->GetCollider().surfaceFriction = 0.7f;
 	objects[2]->SetInverseMass(0.f);
 	objects[2]->GetRigidBody().SetIsStatic(true);
 
-	objects.push_back(new Actor(Vec2{ -45.f, 0.f }, ObjectShape::POLYGON, Vec2{ 6, 100}));
-	objects[3]->GetCollider().surfaceFriction = 0.1f;
+	objects.push_back(new Actor(Vec2{ -45.f, -50.f }, ObjectShape::SQUARE, Vec2{ 6, 100}));
+	objects[3]->GetCollider().surfaceFriction = 0.7f;
 	objects[3]->SetInverseMass(0.f);
 	objects[3]->GetRigidBody().SetIsStatic(true);
 
-	//for (float i = 1.f; i < 20; ++i) {
-	//	Actor* temp = new Actor(Vec2{ 1.f, i * 2 }, ObjectShape::POLYGON, Vec2{ 4, 3 });
-	//	temp->GetCollider().surfaceFriction = 0.15f;
-	//	temp->GetRigidBody().SetElasticityPerc(0.1f);
+	for (float i = 1.f; i < 20; ++i) {
+		Actor* temp = new Actor(Vec2{ 1.f, i * 2 }, ObjectShape::SQUARE, Vec2{ 6, 3 });
+		temp->GetCollider().surfaceFriction = 0.1f;
+		temp->GetRigidBody().SetElasticityPerc(0.7f);
 
-	//	objects.push_back(temp);
-	//}
+		objects.push_back(temp);
+	}
 }
 
 void PhysicsApp::Update(float delta)
@@ -80,17 +80,11 @@ void PhysicsApp::Update(float delta)
 	}
 
 	//Draw line and set magnitude for launch
-	if (rightMouseDown && player->GetWorldPosition().y > -10.0f) {
+	if (rightMouseDown) {
 		float DistanceToCur = (player->GetWorldPosition() - cursorPos).GetMagnitude();
 
 		launchMagnitude = DistanceToCur >= player->GetRigidBody().GetTerminalVelocity() ? player->GetRigidBody().GetTerminalVelocity() : (player->GetWorldPosition() - cursorPos).GetMagnitude();
 		lines->DrawLineWithArrow(player->GetWorldPosition(), player->GetWorldPosition() + (Vec2(player->GetWorldPosition() - cursorPos).Normalise()) * launchMagnitude * 2, Colour::RED);
-	}
-	else if (rightMouseDown && player->GetWorldPosition().y <= -10.0f) {
-		float DistanceToCur = (player->GetWorldPosition() - cursorPos).GetMagnitude();
-
-		launchMagnitude = DistanceToCur >= player->GetRigidBody().GetTerminalVelocity() ? player->GetRigidBody().GetTerminalVelocity() : (player->GetWorldPosition() - cursorPos).GetMagnitude();
-		lines->DrawLineWithArrow(Vec2{ player->GetWorldPosition().x ,-10.0f }, Vec2{ player->GetWorldPosition().x, -10.0f } + (Vec2(player->GetWorldPosition() - cursorPos).Normalise()) * launchMagnitude * 2, Colour::RED);
 	}
 }
 
@@ -137,6 +131,7 @@ void PhysicsApp::OnLeftClick()
 {
 	player->SetPosition(cursorPos);
 	player->GetRigidBody().SetVelocity(Vec2{ 0,0 });
+	player->GetRigidBody().SetIsDirty(false);
 }
 
 void PhysicsApp::OnRightClick()

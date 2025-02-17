@@ -205,11 +205,11 @@ void Actor::SetColliderByEnum(ObjectShape shape)
 {
 	switch (shape) {
 	case CIRCLE:
-		collider = new CircleCollider(this, actorPosition, drawSize.y / 2, drawSize.y * PI);
+		collider = new CircleCollider(this, actorPosition, drawSize.y / 2, drawSize.y / PI);
 		break;
 
 	case SQUARE:
-		collider = new BoxCollider(this, actorPosition, drawSize, drawSize.x * drawSize.y);
+		collider = new BoxCollider(this, actorPosition, drawSize, drawSize.x / drawSize.y);
 		break;
 
 	case TRIANGLE:
@@ -220,7 +220,7 @@ void Actor::SetColliderByEnum(ObjectShape shape)
 		temp.push_back(Vec2(actorPosition.x, actorPosition.y + drawSize.y / 2));
 		temp.push_back(Vec2(actorPosition.x + drawSize.x / 2, actorPosition.y - drawSize.y / 2));
 
-		collider = new PolygonCollider(this, actorPosition, temp, 0.5f * (drawSize.x*drawSize.y));
+		collider = new PolygonCollider(this, actorPosition, temp, 0.5f * (drawSize.x/drawSize.y));
 		break;
 	}
 	case LINE:
@@ -231,7 +231,7 @@ void Actor::SetColliderByEnum(ObjectShape shape)
 
 		drawSize.y = 0.1f;
 
-		collider = new PolygonCollider(this, actorPosition, temp, drawSize.x);
+		collider = new PolygonCollider(this, actorPosition, temp, 0.f);
 		break;
 	}
 	case POLYGON:

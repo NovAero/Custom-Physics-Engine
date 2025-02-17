@@ -25,6 +25,7 @@ public:
 	void ApplyConstantForce(Vec2 direction, float magnitude, float& timer, float& currentTime, float delta);
 	void SetVelocity(Vec2 velocity);
 	void Bounce(Vec2 tangent);
+	void Stop();
 
 	void HandleResistances(float delta);
 	Vec2 HandleSurfaceFriction(float friction, float delta);
@@ -55,6 +56,7 @@ protected:
 	Vec2 objectSize = { 1.f, 1.f };
 
 	float maxMagnitude = 10.f;
+	float staticFriction = 0.25f;
 	
 	float currentSpeed = 1.0f;
 	float drag = 0.5f;
