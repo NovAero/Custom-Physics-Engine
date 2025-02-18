@@ -87,9 +87,14 @@ CollisionInfo CircleToPolyCollision(CircleCollider* a, PolygonCollider* b)
 	float smallestDepth = FLT_MAX;
 	Vec2 smallestDepthNormal;
 
-	for (Vec2 currentNormal : normals) {
+	Vec2 overlapPointA;
+	Vec2 overlapPointB;
 
-		Vec2 maxPoint, minPoint;
+	int smallestNormalIndex;
+
+	for (int i = 0; i < normals.size(); ++i) {
+
+		Vec2 closestPoints[4];
 		
 		float aMin = FLT_MAX;
 		float aMax = -FLT_MAX;
@@ -97,21 +102,24 @@ CollisionInfo CircleToPolyCollision(CircleCollider* a, PolygonCollider* b)
 		float bMax = -FLT_MAX;
 
 		//A min and max can be set manually - no for loop needed, there's only 2 points being checked
-		aMax = Dot(a->position + (currentNormal * a->radius), currentNormal);
-		aMin = Dot(a->position + (-currentNormal * a->radius), currentNormal);
+		aMax = Dot(a->position + (normals[i] * a->radius), normals[i]);
+		aMin = Dot(a->position + (-normals[i] * a->radius), normals[i]);
+
+		closestPoints[0] = a->position + (-normals[i] * a->radius);
+		closestPoints[1] = a->position + (normals[i] * a->radius);
 
 		//B min and max
 		for (Vec2 currentPoint : bPoints) {
-			float projection = Dot(currentPoint, currentNormal);
+			float projection = Dot(currentPoint, normals[i]);
 
 			if (projection < bMin) {
 				bMin = projection;
-				minPoint = currentPoint;
+				closestPoints[2] = currentPoint;
 			}
 			
 			if (projection > bMax) {
 				bMax = projection;
-				maxPoint = currentPoint;
+				closestPoints[3] = currentPoint;
 			}
 		}
 
@@ -121,11 +129,17 @@ CollisionInfo CircleToPolyCollision(CircleCollider* a, PolygonCollider* b)
 		//Smallest overlap direction and depth
 		if (overlapA < smallestDepth) {
 			smallestDepth = overlapA;
-			smallestDepthNormal = currentNormal;
+			smallestDepthNormal = normals[i];
+			smallestNormalIndex = i;
+			overlapPointA = closestPoints[1];
+			overlapPointB = closestPoints[2];
 		} 
 		if (overlapB < smallestDepth) {
 			smallestDepth = overlapB;
-			smallestDepthNormal = -currentNormal;
+			smallestDepthNormal = -normals[i];
+			smallestNormalIndex = i;
+			overlapPointB = closestPoints[3];
+			overlapPointA = closestPoints[0];
 		}		
 	}
 
@@ -134,6 +148,27 @@ CollisionInfo CircleToPolyCollision(CircleCollider* a, PolygonCollider* b)
 		smallestDepthNormal = { 0,1 };
 	}
 	
+	//With two closest points and smallest normal, rotate normal back to a point to point
+//directional and dot against it to get collision point on edge
+	if (smallestNormalIndex < 2) {
+		//if normal is coming from a, overlapPointA will be a vertex
+		Vec2 direction = smallestDepthNormal.GetRotatedBy270();
+
+		//Get the dot between the distance a to b point on the normal rotated to tangent
+		float dottedMag = Dot(overlapPointA, direction) - Dot(overlapPointB, direction);
+
+		info.contactPoints[0] = overlapPointB + (direction * dottedMag);
+	}
+	else {
+		//if normal is coming from b, overlapPointB will be a vertex
+		Vec2 direction = smallestDepthNormal.GetRotatedBy270();
+
+		//Get the dot between the distance b to a point on the normal rotated to tangent
+		float dottedMag = Dot(overlapPointA, direction) - Dot(overlapPointB, direction);
+
+		info.contactPoints[0] = overlapPointB + (direction * dottedMag);
+	}
+
 	info.overlapAmount = smallestDepth;
 	info.collisionNormal = smallestDepthNormal;
 
@@ -235,14 +270,16 @@ CollisionInfo PolyToPolyCollision(PolygonCollider* a, PolygonCollider* b)
 	if (smallestNormalIndex < a->GetEdgeNormals().size()) { 
 		//if normal is coming from a, overlapPointA will be a vertex
 		Vec2 direction = smallestDepthNormal.GetRotatedBy270();
+
 		//Get the dot between the distance a to b point on the normal rotated to tangent
-		float dottedMag = Dot(aPoints[smallestNormalIndex], direction) - Dot(overlapPointB, direction);
+		float dottedMag = Dot(overlapPointA, direction) - Dot(overlapPointB, direction);
 
 		info.contactPoints[0] = overlapPointB + (direction * dottedMag);
 	}
 	else {
 		//if normal is coming from b, overlapPointB will be a vertex
 		Vec2 direction = smallestDepthNormal.GetRotatedBy270();
+
 		//Get the dot between the distance b to a point on the normal rotated to tangent
 		float dottedMag = Dot(overlapPointA, direction) - Dot(overlapPointB, direction);
 

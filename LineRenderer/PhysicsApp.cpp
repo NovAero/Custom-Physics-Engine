@@ -21,19 +21,19 @@ PhysicsApp::~PhysicsApp()
 
 void PhysicsApp::Initialise()
 {
-	player = new Actor(Vec2{ 100.f,4.f }, ObjectShape::POLYGON, Vec2{7,8});
+	player = new Actor(Vec2{ 100.f,4.f }, ObjectShape::CIRCLE, Vec2{7,8});
 	player->colour = Colour::GREEN;
 	player->GetCollider().surfaceFriction = 0.5f;
 	player->GetCollider().invMass = 5.f;
 
 	objects.push_back(player);
 
-	objects.push_back(new Actor(Vec2{ 0.f, -100.f }, ObjectShape::RECT, Vec2{ 100, 6 }));
+	objects.push_back(new Actor(Vec2{ 0.f, -100.f }, ObjectShape::POLYGON, Vec2{ 7, 50 }));
 	objects[1]->GetCollider().surfaceFriction = 0.7f;
 	objects[1]->SetInverseMass(0.f);
 	objects[1]->GetRigidBody().SetIsStatic(true);
 
-	objects.push_back(new Actor(Vec2{ 20.f, -50.f }, ObjectShape::RECT, Vec2{ 6, 100 }));
+	objects.push_back(new Actor(Vec2{ 20.f, -50.f }, ObjectShape::POLYGON, Vec2{ 7, 50 }));
 	objects[2]->GetCollider().surfaceFriction = 0.7f;
 	objects[2]->SetInverseMass(0.f);
 	objects[2]->GetRigidBody().SetIsStatic(true);
