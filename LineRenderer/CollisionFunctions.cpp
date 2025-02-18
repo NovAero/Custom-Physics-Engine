@@ -85,10 +85,12 @@ CollisionInfo CircleToPolyCollision(CircleCollider* a, PolygonCollider* b)
 	}
 
 	float smallestDepth = FLT_MAX;
-	Vec2 smallestDepthNormal = { 0,1 };
+	Vec2 smallestDepthNormal;
 
 	for (Vec2 currentNormal : normals) {
 
+		Vec2 maxPoint, minPoint;
+		
 		float aMin = FLT_MAX;
 		float aMax = -FLT_MAX;
 		float bMin = FLT_MAX;
@@ -102,8 +104,15 @@ CollisionInfo CircleToPolyCollision(CircleCollider* a, PolygonCollider* b)
 		for (Vec2 currentPoint : bPoints) {
 			float projection = Dot(currentPoint, currentNormal);
 
-			if (projection < bMin) bMin = projection;
-			if (projection > bMax) bMax = projection;
+			if (projection < bMin) {
+				bMin = projection;
+				minPoint = currentPoint;
+			}
+			
+			if (projection > bMax) {
+				bMax = projection;
+				maxPoint = currentPoint;
+			}
 		}
 
 		float overlapA = aMax - bMin;
@@ -113,11 +122,11 @@ CollisionInfo CircleToPolyCollision(CircleCollider* a, PolygonCollider* b)
 		if (overlapA < smallestDepth) {
 			smallestDepth = overlapA;
 			smallestDepthNormal = currentNormal;
-		}
+		} 
 		if (overlapB < smallestDepth) {
 			smallestDepth = overlapB;
 			smallestDepthNormal = -currentNormal;
-		}
+		}		
 	}
 
 	if (smallestDepth == FLT_MAX) { //in case of breaks in positional data
@@ -131,12 +140,17 @@ CollisionInfo CircleToPolyCollision(CircleCollider* a, PolygonCollider* b)
 	return info;
 }
 
+
 CollisionInfo PolyToPolyCollision(PolygonCollider* a, PolygonCollider* b)
 {
 	CollisionInfo info;
 	info.colliderA = a;
 	info.colliderB = b;
-
+	
+	if (a->invMass == 0.f && b->invMass == 9.f) {
+		return info;
+	}
+	
 	std::vector<Vec2> normals;
 
 	std::vector<Vec2> aPoints = a->GetPoints();
@@ -153,28 +167,47 @@ CollisionInfo PolyToPolyCollision(PolygonCollider* a, PolygonCollider* b)
 	}
 
 	float smallestDepth = FLT_MAX;
+	int smallestNormalIndex = INT_MAX;
 	Vec2 smallestDepthNormal;
 
-	//Find projections
-	for (Vec2 currentNormal : normals) {
+	Vec2 overlapPointA;
+	Vec2 overlapPointB;
 
+	//Find projections on a
+	for (int i = 0; i < normals.size(); ++i) {
+
+		Vec2 closestPoints[4];
+		
 		float aMin = FLT_MAX;
 		float aMax = -FLT_MAX;
 		float bMin = FLT_MAX;
 		float bMax = -FLT_MAX;
+
 		//A min and max
 		for (Vec2 currentPoint : aPoints) {
-			float projection = Dot(currentPoint, currentNormal);
+			float projection = Dot(currentPoint,normals[i]);
 
-			if (projection < aMin) aMin = projection;
-			if (projection > aMax) aMax = projection;
+			if (projection < aMin) {
+				aMin = projection;
+				closestPoints[0] = currentPoint;
+			}
+			if (projection > aMax) {
+				aMax = projection;
+				closestPoints[1] = currentPoint;
+			}
 		}
 		//B min and max
 		for (Vec2 currentPoint : bPoints) {
-			float projection = Dot(currentPoint, currentNormal);
+			float projection = Dot(currentPoint, normals[i]);
 
-			if (projection < bMin) bMin = projection;
-			if (projection > bMax) bMax = projection;
+			if (projection < bMin) {
+				bMin = projection;
+				closestPoints[2] = currentPoint;
+			}
+			if (projection > bMax) {
+				bMax = projection;
+				closestPoints[3] = currentPoint;
+			}
 		}
 
 		float overlapA = aMax - bMin;
@@ -183,12 +216,37 @@ CollisionInfo PolyToPolyCollision(PolygonCollider* a, PolygonCollider* b)
 		//Smallest overlap direction and depth
 		if (overlapA < smallestDepth) {
 			smallestDepth = overlapA;
-			smallestDepthNormal = currentNormal;
+			smallestDepthNormal = normals[i];
+			smallestNormalIndex = i;
+			overlapPointA = closestPoints[1];
+			overlapPointB = closestPoints[2];
 		}
 		if (overlapB < smallestDepth) {
 			smallestDepth = overlapB;
-			smallestDepthNormal = -currentNormal;
+			smallestDepthNormal = -normals[i];
+			smallestNormalIndex = i;
+			overlapPointB = closestPoints[3];
+			overlapPointA = closestPoints[0];
 		}
+	}
+
+	//With two closest points and smallest normal, rotate normal back to a point to point
+	//directional and dot against it to get collision point on edge
+	if (smallestNormalIndex < a->GetEdgeNormals().size()) { 
+		//if normal is coming from a, overlapPointA will be a vertex
+		Vec2 direction = smallestDepthNormal.GetRotatedBy270();
+		//Get the dot between the distance a to b point on the normal rotated to tangent
+		float dottedMag = Dot(aPoints[smallestNormalIndex], direction) - Dot(overlapPointB, direction);
+
+		info.contactPoints[0] = overlapPointB + (direction * dottedMag);
+	}
+	else {
+		//if normal is coming from b, overlapPointB will be a vertex
+		Vec2 direction = smallestDepthNormal.GetRotatedBy270();
+		//Get the dot between the distance b to a point on the normal rotated to tangent
+		float dottedMag = Dot(overlapPointA, direction) - Dot(overlapPointB, direction);
+
+		info.contactPoints[0] = overlapPointB + (direction * dottedMag);
 	}
 
 	info.overlapAmount = smallestDepth;
@@ -203,4 +261,39 @@ Vec2 GetMidpoint(Vec2 a, Vec2 b)
 	Vec2 midPoint = direction * ((b-a).GetMagnitude()/2);
 	
 	return midPoint;
+}
+
+Vec2 FindClosestPoint(std::vector<Vec2> points, Vec2 point)
+{
+	float closest = FLT_MAX;
+	Vec2 closestPoint;
+
+	for (Vec2 currentPoint : points) {
+		float dist = (point - currentPoint).GetMagnitudeSquared();
+
+		closestPoint = dist < closest ? currentPoint : closestPoint;
+	}
+
+	return closestPoint;
+}
+
+void FindClosestPoints(std::vector<Vec2> points, Vec2 point, Vec2& firstClosest, Vec2& secondClosest)
+{
+	float first = FLT_MAX;
+	float second;
+
+	for (Vec2 currentPoint : points) {
+		float distSqr = (currentPoint - point).GetMagnitudeSquared();
+
+		if ( distSqr < first) {
+			second = first;
+			first = distSqr;
+			secondClosest = firstClosest;
+			firstClosest = currentPoint;
+		}
+		else if (distSqr < second) {
+			second = distSqr;
+			secondClosest = currentPoint;
+		}
+	}
 }

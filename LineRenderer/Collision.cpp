@@ -16,6 +16,8 @@ void CollisionInfo::Resolve()
 	colliderA->lastCollisionNormal = -collisionNormal;
 	colliderB->lastCollisionNormal = collisionNormal;
 
+	colliderA->parent->GetRigidBody().frictionDirection = contactPoints[0];
+
 	//TODO fix friction and other resistances to account for moveable objects not just -10.f
 
 	//TODO rewrite collision actions, rigidbody velocity and other class action handling

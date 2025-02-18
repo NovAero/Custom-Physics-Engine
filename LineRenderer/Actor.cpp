@@ -3,7 +3,7 @@
 #include "RigidBody.h"
 #include "Collider.h"
 
-bool debug = false;
+bool debug = true;
 
 Actor::Actor()
 {
@@ -42,7 +42,7 @@ void Actor::Draw(LineRenderer* lines)
 {
 	if (debug) {
 		lines->DrawCircle(actorPosition, 0.5f, Colour::CYAN);
-		lines->DrawLineWithArrow(actorPosition, actorPosition + (rb->frictionDirection * (collider->surfaceFriction * GRAVITY)),Colour::ORANGE);
+		lines->DrawCircle(rb->frictionDirection,0.5f, Colour::ORANGE);
 	}
 	
 	switch (shape) {

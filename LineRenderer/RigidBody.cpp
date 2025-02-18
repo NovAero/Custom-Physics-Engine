@@ -112,11 +112,6 @@ Vec2 RigidBody::HandleSurfaceFriction(float friction, float delta)
 		ApplyImpulse(-tangentNormal, fs * delta);
 	}
 
-	
-
-	//Debug
-	frictionDirection = tangentNormal;
-	
 	return tangentNormal;
 }
 

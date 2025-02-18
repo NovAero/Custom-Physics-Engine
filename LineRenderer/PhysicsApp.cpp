@@ -21,7 +21,7 @@ PhysicsApp::~PhysicsApp()
 
 void PhysicsApp::Initialise()
 {
-	player = new Actor(Vec2{ 100.f,4.f }, ObjectShape::POLYGON, Vec2{6,8});
+	player = new Actor(Vec2{ 100.f,4.f }, ObjectShape::POLYGON, Vec2{7,8});
 	player->colour = Colour::GREEN;
 	player->GetCollider().surfaceFriction = 0.5f;
 	player->GetCollider().invMass = 5.f;
@@ -43,13 +43,13 @@ void PhysicsApp::Initialise()
 	objects[3]->SetInverseMass(0.f);
 	objects[3]->GetRigidBody().SetIsStatic(true);
 
-	for (float i = 1.f; i < 20; ++i) {
-		Actor* temp = new Actor(Vec2{ 1.f, i * 2 }, ObjectShape::POLYGON, Vec2{ 6, 3 });
-		temp->GetCollider().surfaceFriction = 0.1f;
-		temp->GetRigidBody().SetElasticityPerc(0.7f);
+	//for (float i = 1.f; i < 20; ++i) {
+	//	Actor* temp = new Actor(Vec2{ 1.f, i * 2 }, ObjectShape::POLYGON, Vec2{ 6, 3 });
+	//	temp->GetCollider().surfaceFriction = 0.1f;
+	//	temp->GetRigidBody().SetElasticityPerc(0.7f);
 
-		objects.push_back(temp);
-	}
+	//	objects.push_back(temp);
+	//}
 }
 
 void PhysicsApp::Update(float delta)

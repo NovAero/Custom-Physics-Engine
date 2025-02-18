@@ -97,7 +97,6 @@ void PolygonCollider::UpdatePoints()
 	{ //Convert points from direction and magnitude to Vec2 position
 		cachedWorldPoints[i] = position + (vecsFromParent[i]);
 	}
-
 }
 
 void PolygonCollider::Rotate(float deg)
@@ -106,6 +105,9 @@ void PolygonCollider::Rotate(float deg)
 
 	for (Vec2& thisPoint : vecsFromParent) {
 		thisPoint.RotateBy(rad);
+	}
+	for (Vec2& thisNormal : edgeNormals) {
+		thisNormal.RotateBy(rad);
 	}
 
 	UpdatePoints();
