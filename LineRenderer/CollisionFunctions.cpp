@@ -90,7 +90,7 @@ CollisionInfo CircleToPolyCollision(CircleCollider* a, PolygonCollider* b)
 	Vec2 overlapPointA;
 	Vec2 overlapPointB;
 
-	int smallestNormalIndex;
+	int smallestNormalIndex = INT_MAX;
 
 	for (int i = 0; i < normals.size(); ++i) {
 
@@ -178,13 +178,11 @@ CollisionInfo CircleToPolyCollision(CircleCollider* a, PolygonCollider* b)
 
 CollisionInfo PolyToPolyCollision(PolygonCollider* a, PolygonCollider* b)
 {
+	//TODO fix contact points to allow for a contact manifold
+
 	CollisionInfo info;
 	info.colliderA = a;
 	info.colliderB = b;
-	
-	if (a->invMass == 0.f && b->invMass == 9.f) {
-		return info;
-	}
 	
 	std::vector<Vec2> normals;
 
