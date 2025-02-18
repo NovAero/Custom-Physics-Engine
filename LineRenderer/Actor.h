@@ -10,7 +10,7 @@ class Collider;
 enum ObjectShape
 {
 	CIRCLE,
-	SQUARE,
+	RECT,
 	TRIANGLE,
 	LINE,
 	POLYGON

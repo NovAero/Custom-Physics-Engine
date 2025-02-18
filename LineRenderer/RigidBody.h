@@ -53,6 +53,7 @@ protected:
 	Colour colour = Colour::WHITE;
 
 	Vec2 currentVelocity = { 0,0 };
+	Vec2 currenAngularVelocity = { 0,0 };
 	Vec2 objectSize = { 1.f, 1.f };
 
 	float maxMagnitude = 10.f;

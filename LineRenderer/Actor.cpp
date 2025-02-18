@@ -49,7 +49,7 @@ void Actor::Draw(LineRenderer* lines)
 	case CIRCLE:
 		lines->DrawCircle(actorPosition, drawSize.y / 2, colour);
 		break;
-	case SQUARE:
+	case RECT:
 	{
 		PolygonCollider* polyA = dynamic_cast<PolygonCollider*>(collider);
 
@@ -208,7 +208,7 @@ void Actor::SetColliderByEnum(ObjectShape shape)
 		collider = new CircleCollider(this, actorPosition, drawSize.y / 2, drawSize.y / PI);
 		break;
 
-	case SQUARE:
+	case RECT:
 		collider = new BoxCollider(this, actorPosition, drawSize, drawSize.x / drawSize.y);
 		break;
 

@@ -20,6 +20,10 @@ Vec2 Collider::UpdatePos(Vec2 pos)
 	return (position - lastPos);
 }
 
+void Collider::Rotate(float deg)
+{
+}
+
 
 CircleCollider::CircleCollider(Actor* parent, Vec2 position, float radius, float inverseMass) : Collider(parent, inverseMass)
 {
@@ -33,12 +37,12 @@ BoxCollider::BoxCollider(Actor* parent, Vec2 position, Vec2 dimensions, float in
 	this->dimensions = dimensions;
 
 	//Corners go clockwise from bottom left to bottom right
-	vecPoints.push_back(Vec2{ position.x - dimensions.x / 2, position.y - dimensions.y / 2 }); //Bottom Left
-	vecPoints.push_back(Vec2{ position.x - dimensions.x / 2, position.y + dimensions.y / 2 }); //Top Left
-	vecPoints.push_back(Vec2{ position.x + dimensions.x / 2, position.y + dimensions.y / 2 }); //Top Right
-	vecPoints.push_back(Vec2{ position.x + dimensions.x / 2, position.y - dimensions.y / 2 }); //Bottom Right
+	cachedWorldPoints.push_back(Vec2{ position.x - dimensions.x / 2, position.y - dimensions.y / 2 }); //Bottom Left
+	cachedWorldPoints.push_back(Vec2{ position.x - dimensions.x / 2, position.y + dimensions.y / 2 }); //Top Left
+	cachedWorldPoints.push_back(Vec2{ position.x + dimensions.x / 2, position.y + dimensions.y / 2 }); //Top Right
+	cachedWorldPoints.push_back(Vec2{ position.x + dimensions.x / 2, position.y - dimensions.y / 2 }); //Bottom Right
 
-	ConstructPoints(vecPoints);
+	ConstructPoints(cachedWorldPoints);
 }
 
 Vec2 BoxCollider::UpdatePos(Vec2 pos)
@@ -68,6 +72,7 @@ PolygonCollider::PolygonCollider(Actor* parent, Vec2 position, int numPoints, fl
 		plotPoint.RotateBy(cosAngle, sinAngle);
 		plotPoints.push_back(position + plotPoint);
 	}
+
 	//Create points for update
 	ConstructPoints(plotPoints);
 }
@@ -88,15 +93,27 @@ Vec2 PolygonCollider::UpdatePos(Vec2 pos)
 
 void PolygonCollider::UpdatePoints()
 {
-	for (int i = 0; i < points.size(); ++i)
+	for (int i = 0; i < vecsFromParent.size(); ++i)
 	{ //Convert points from direction and magnitude to Vec2 position
-		vecPoints[i] = position + (-points[i].dirFromParent * points[i].magnitude);
+		cachedWorldPoints[i] = position + (vecsFromParent[i]);
 	}
+
+}
+
+void PolygonCollider::Rotate(float deg)
+{
+	float rad = DegToRad(deg);
+
+	for (Vec2& thisPoint : vecsFromParent) {
+		thisPoint.RotateBy(rad);
+	}
+
+	UpdatePoints();
 }
 
 std::vector<Vec2> PolygonCollider::GetPoints()
 {
-	return vecPoints;
+	return cachedWorldPoints;
 }
 
 std::vector<Vec2> PolygonCollider::GetEdgeNormals()
@@ -106,18 +123,19 @@ std::vector<Vec2> PolygonCollider::GetEdgeNormals()
 
 void PolygonCollider::ConstructPoints(std::vector<Vec2> points)
 {
-	vecPoints = points;
+	cachedWorldPoints = points;
 
 	for (Vec2 currentPoint : points) {
-		Point calcPoint = Point{ (position - currentPoint).GetNormalised(),(position - currentPoint).GetMagnitude() };
-		this->points.push_back(calcPoint);
+		Vec2 calcPoint = position - currentPoint;
+		this->vecsFromParent.push_back(calcPoint);
 	}
 
-	for (int i = 0; i < vecPoints.size(); ++i) {
+	for (int i = 0; i < cachedWorldPoints.size(); ++i) {
 
-		int j = i + 1 >= vecPoints.size() ? 0 : i + 1;
+		int j = ( i + 1) % cachedWorldPoints.size();
 
-		Vec2 current = vecPoints[j] - vecPoints[i];
+		Vec2 current = cachedWorldPoints[j] - cachedWorldPoints[i];
+		
 		current.Normalise().RotateBy90();
 		edgeNormals.push_back(current);
 	}

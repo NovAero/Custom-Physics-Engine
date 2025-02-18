@@ -12,6 +12,7 @@ public:
 	virtual ~Collider();
 
 	virtual Vec2 UpdatePos(Vec2 pos);
+	virtual void Rotate(float deg);
 
 	Collider* lastCollided;
 	Vec2 lastCollisionNormal;
@@ -33,14 +34,6 @@ public:
 	float radius;
 };
 
-struct Point {
-public:
-	Point(Vec2 dir, float mag) { dirFromParent = dir; magnitude = mag; }
-
-	Vec2 dirFromParent;
-	float magnitude;
-};
-
 class PolygonCollider : public Collider {
 public:
 	PolygonCollider(Actor* parent, float inverseMass);
@@ -51,6 +44,8 @@ public:
 	virtual Vec2 UpdatePos(Vec2 pos) override;
 	void UpdatePoints();
 
+	virtual void Rotate(float deg) override;
+
 	std::vector<Vec2> GetPoints();
 	std::vector<Vec2> GetEdgeNormals();
 
@@ -58,8 +53,8 @@ protected:
 	void ConstructPoints(std::vector<Vec2> points);
 
 protected:
-	std::vector<Vec2> vecPoints;
-	std::vector<Point> points;
+	std::vector<Vec2> cachedWorldPoints;
+	std::vector<Vec2> vecsFromParent;
 	std::vector<Vec2> edgeNormals;
 };
 
