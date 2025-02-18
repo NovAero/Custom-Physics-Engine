@@ -16,7 +16,6 @@ public:
 	Vec2 collisionNormal;//Points FROM a TO b
 
 	//Contact manifold
-	int pointCount;
-	Vec2 contactPoints[4];
-	Vec2 normal;
+	int pointCount = -1;
+	Vec2 contactPoints[2];
 };

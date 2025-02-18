@@ -15,10 +15,13 @@ CollisionInfo CircleToCircleCollision(CircleCollider* a, CircleCollider* b)
 
 	info.collisionNormal = centreDisplacement / distance;
 
+	info.contactPoints[0] = a->position + info.collisionNormal * a->radius;
+	info.pointCount = 1;
+
 	return info;
 }
 
-CollisionInfo BoxToBoxCollision(BoxCollider* a, BoxCollider* b)
+CollisionInfo BoxToBoxCollision(BoxCollider* a, BoxCollider* b) //Deprecated, use poly-poly for OBB
 {
 	CollisionInfo info;
 	info.colliderA = a;
@@ -74,7 +77,7 @@ CollisionInfo CircleToPolyCollision(CircleCollider* a, PolygonCollider* b)
 	//Get normals from a to b points
 	for (Vec2 currentPoint : bPoints) {
 		Vec2 current = currentPoint - a->position;
-		current.Normalise().RotateBy90();
+		current.Normalise();
 
 		normals.push_back(current);
 	}
@@ -149,8 +152,8 @@ CollisionInfo CircleToPolyCollision(CircleCollider* a, PolygonCollider* b)
 	}
 	
 	//With two closest points and smallest normal, rotate normal back to a point to point
-//directional and dot against it to get collision point on edge
-	if (smallestNormalIndex < 2) {
+	//directional and dot against it to get collision point on edge
+	if (smallestNormalIndex < bPoints.size()) {
 		//if normal is coming from a, overlapPointA will be a vertex
 		Vec2 direction = smallestDepthNormal.GetRotatedBy270();
 
@@ -167,6 +170,15 @@ CollisionInfo CircleToPolyCollision(CircleCollider* a, PolygonCollider* b)
 		float dottedMag = Dot(overlapPointA, direction) - Dot(overlapPointB, direction);
 
 		info.contactPoints[0] = overlapPointB + (direction * dottedMag);
+	}
+
+	//if smallest normal index has overflowed to above b's point count, clamp it for checks (dont need it for contact points anymore)
+	smallestNormalIndex = smallestNormalIndex > bPoints.size() - 1 ? bPoints.size() - 1 : smallestNormalIndex;
+
+	//if the distance between aMax and the closest point is small enough to return wacky collision, clamp it to -0.01f;
+	//This stops the circles from "gripping" to the edges in between delta steps
+	if (((a->position + (smallestDepthNormal * a->radius)) - bPoints[smallestNormalIndex]).GetMagnitude() < 0.09f) {
+		smallestDepth = -0.09f;
 	}
 
 	info.overlapAmount = smallestDepth;

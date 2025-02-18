@@ -128,7 +128,7 @@ void PolygonCollider::ConstructPoints(std::vector<Vec2> points)
 	cachedWorldPoints = points;
 
 	for (Vec2 currentPoint : points) {
-		Vec2 calcPoint = position - currentPoint;
+		Vec2 calcPoint = currentPoint - position;
 		this->vecsFromParent.push_back(calcPoint);
 	}
 

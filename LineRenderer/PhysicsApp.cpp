@@ -21,7 +21,7 @@ PhysicsApp::~PhysicsApp()
 
 void PhysicsApp::Initialise()
 {
-	player = new Actor(Vec2{ 100.f,4.f }, ObjectShape::POLYGON, Vec2{7,8});
+	player = new Actor(Vec2{ 100.f,4.f }, ObjectShape::CIRCLE, Vec2{5,15});
 	player->colour = Colour::GREEN;
 	player->GetCollider().surfaceFriction = 0.5f;
 	player->GetCollider().invMass = 5.f;
@@ -33,7 +33,7 @@ void PhysicsApp::Initialise()
 	objects[1]->SetInverseMass(0.f);
 	objects[1]->GetRigidBody().SetIsStatic(true);
 
-	objects.push_back(new Actor(Vec2{ 20.f, -50.f }, ObjectShape::POLYGON, Vec2{ 7, 50 }));
+	objects.push_back(new Actor(Vec2{ 20.f, -50.f }, ObjectShape::POLYGON, Vec2{ 3, 50 }));
 	objects[2]->GetCollider().surfaceFriction = 0.7f;
 	objects[2]->SetInverseMass(0.f);
 	objects[2]->GetRigidBody().SetIsStatic(true);
@@ -43,10 +43,10 @@ void PhysicsApp::Initialise()
 	objects[3]->SetInverseMass(0.f);
 	objects[3]->GetRigidBody().SetIsStatic(true);
 
-	for (float i = 1.f; i < 20; ++i) {
-		Actor* temp = new Actor(Vec2{ 1.f, i * 2 }, ObjectShape::POLYGON, Vec2{ 6, 3 });
+	for (float i = 1.f; i < 3; ++i) {
+		Actor* temp = new Actor(Vec2{ 1.f, i * 2 }, ObjectShape::CIRCLE, Vec2{ 6, 5 });
 		temp->GetCollider().surfaceFriction = 0.1f;
-		temp->GetRigidBody().SetElasticityPerc(0.7f);
+		temp->GetRigidBody().SetElasticityPerc(0.5f);
 
 		objects.push_back(temp);
 	}
@@ -66,8 +66,8 @@ void PhysicsApp::Update(float delta)
 
 	for (CollisionInfo& thisInfo : collisions)
 	{
-		//lines->DrawLineWithArrow(thisInfo.colliderA->position, thisInfo.colliderA->position + thisInfo.collisionNormal * 1.0, Colour::RED, 0.3f);
-		//lines->DrawLineWithArrow(thisInfo.colliderB->position, thisInfo.colliderB->position - thisInfo.collisionNormal * 1.0, Colour::RED, 0.3f);
+		lines->DrawLineWithArrow(thisInfo.colliderA->position, thisInfo.colliderA->position + thisInfo.collisionNormal * 5.0, Colour::RED, 0.3f);
+		lines->DrawLineWithArrow(thisInfo.colliderB->position, thisInfo.colliderB->position - thisInfo.collisionNormal * 5.0, Colour::RED, 0.3f);
 		thisInfo.Resolve();
 	}
 
@@ -90,6 +90,8 @@ void PhysicsApp::Update(float delta)
 
 void PhysicsApp::QueueCollision(Collider* a, Collider* b)
 {
+	if (a->invMass == 0.f && b->invMass == 0.f) return;
+
 	CollisionInfo thisHit;
 
 	CircleCollider* circA = dynamic_cast<CircleCollider*>(a);
