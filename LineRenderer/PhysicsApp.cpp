@@ -42,7 +42,7 @@ void PhysicsApp::Initialise()
 	for (int i = 1; i < 7; ++i) {
 		Actor* temp = new Actor(Vec2{ 0.f, 10.f + i * 2 }, ObjectShape::POLYGON, Vec2{ (float)(9 - i), 5 });
 
-		temp->GetCollider().invMass = 10.f;
+		temp->GetCollider().invMass = 5.f;
 
 		objects.push_back(temp);
 	}
