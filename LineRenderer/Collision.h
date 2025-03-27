@@ -15,7 +15,4 @@ public:
 	float overlapAmount = -1.f;
 	Vec2 collisionNormal;//Points FROM a TO b
 
-	//Contact manifold
-	int pointCount = -1;
-	Vec2 contactPoints[2];
 };

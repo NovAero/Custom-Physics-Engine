@@ -42,7 +42,6 @@ void Actor::Draw(LineRenderer* lines)
 {
 	if (debug) {
 		lines->DrawCircle(actorPosition, 0.5f, Colour::CYAN);
-		lines->DrawCircle(rb->frictionDirection,0.5f, Colour::ORANGE);
 	}
 	
 	switch (shape) {
@@ -150,7 +149,7 @@ Vec2 Actor::GetDrawSize() const
 
 float Actor::GetCurrentSpeed() const
 {
-	return rb->currentSpeed;
+	return rb->GetCurrentVelocity().GetMagnitude();
 }
 
 Vec2 Actor::GetCurrentVelocity() const
@@ -165,7 +164,7 @@ float Actor::GetTerminalVelocity() const
 
 bool Actor::GetIsDirty() const
 {
-	return rb->isDirty;
+	return rb->isActive;
 }
 
 Vec2 Actor::GetRbSize() const
@@ -181,6 +180,7 @@ void Actor::SetInverseMass(float inverseMass)
 
 void Actor::SetPosition(Vec2 pos)
 {
+
 	actorPosition = pos;
 	collider->UpdatePos(pos);
 }
@@ -193,12 +193,6 @@ RigidBody& Actor::GetRigidBody() const
 Collider& Actor::GetCollider() const
 {
 	return *collider;
-}
-
-RigidBody& Actor::GetLastCollidedRb() const
-{
-	if (collider->lastCollided == nullptr) return *rb;
-	return collider->lastCollided->parent->GetRigidBody();
 }
 
 void Actor::SetColliderByEnum(ObjectShape shape)

@@ -24,27 +24,18 @@ public:
 	void ApplyImpulse(Vec2 impulse);
 	void ApplyConstantForce(Vec2 direction, float magnitude, float& timer, float& currentTime, float delta);
 	void SetVelocity(Vec2 velocity);
-	void Bounce(Vec2 tangent);
 	void Stop();
 
 	void HandleResistances(float delta);
-	Vec2 HandleSurfaceFriction(float friction, float delta);
 
-	bool GetIsDirty()const { return isDirty; }
+	bool GetIsActive()const { return isActive; }
 	Vec2 GetSize() const { return objectSize; }
-	float GetCurrentSpeed() const { return currentSpeed; }
 	Vec2 GetCurrentVelocity() const { return currentVelocity; }
 	float GetTerminalVelocity() const { return maxMagnitude; }
 	bool GetIsStatic() const { return isStatic; }
 
-	void SetIsDirty(bool dirty) { isDirty = dirty; }
+	void SetActive(bool active) { isActive = active; }
 	void SetIsStatic(bool _static) { isStatic = _static; }
-	void SetShouldApplyFriction(bool b) { shouldApplyFriction = b; }
-	void SetElasticityPerc(float ePercent);
-
-
-	//Debug
-	Vec2 frictionDirection = { 1,0 };
 
 protected:
 
@@ -53,17 +44,12 @@ protected:
 	Colour colour = Colour::WHITE;
 
 	Vec2 currentVelocity = { 0,0 };
-	Vec2 currenAngularVelocity = { 0,0 };
-	Vec2 objectSize = { 1.f, 1.f };
-
 	float maxMagnitude = 10.f;
-	float staticFriction = 0.25f;
+	Vec2 objectSize = { 1.f, 1.f };
 	
-	float currentSpeed = 1.0f;
 	float drag = 0.5f;
 
-	bool shouldApplyFriction = false;
-	bool isDirty = false;
+	bool isActive = false;
 
 	bool isStatic = false;
 
