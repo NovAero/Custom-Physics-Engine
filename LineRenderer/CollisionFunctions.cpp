@@ -15,9 +15,6 @@ CollisionInfo CircleToCircleCollision(CircleCollider* a, CircleCollider* b)
 
 	info.collisionNormal = centreDisplacement / distance;
 
-	info.contactPoints[0] = a->position + info.collisionNormal * a->radius;
-	info.pointCount = 1;
-
 	return info;
 }
 
@@ -160,7 +157,6 @@ CollisionInfo CircleToPolyCollision(CircleCollider* a, PolygonCollider* b)
 		//Get the dot between the distance a to b point on the normal rotated to tangent
 		float dottedMag = Dot(overlapPointA, direction) - Dot(overlapPointB, direction);
 
-		info.contactPoints[0] = overlapPointB + (direction * dottedMag);
 	}
 	else {
 		//if normal is coming from b, overlapPointB will be a vertex
@@ -169,7 +165,6 @@ CollisionInfo CircleToPolyCollision(CircleCollider* a, PolygonCollider* b)
 		//Get the dot between the distance b to a point on the normal rotated to tangent
 		float dottedMag = Dot(overlapPointA, direction) - Dot(overlapPointB, direction);
 
-		info.contactPoints[0] = overlapPointB + (direction * dottedMag);
 	}
 
 	//if smallest normal index has overflowed to above b's point count, clamp it for checks (dont need it for contact points anymore)
@@ -284,7 +279,6 @@ CollisionInfo PolyToPolyCollision(PolygonCollider* a, PolygonCollider* b)
 		//Get the dot between the distance a to b point on the normal rotated to tangent
 		float dottedMag = Dot(overlapPointA, direction) - Dot(overlapPointB, direction);
 
-		info.contactPoints[0] = overlapPointB + (direction * dottedMag);
 	}
 	else {
 		//if normal is coming from b, overlapPointB will be a vertex
@@ -293,7 +287,6 @@ CollisionInfo PolyToPolyCollision(PolygonCollider* a, PolygonCollider* b)
 		//Get the dot between the distance b to a point on the normal rotated to tangent
 		float dottedMag = Dot(overlapPointA, direction) - Dot(overlapPointB, direction);
 
-		info.contactPoints[0] = overlapPointB + (direction * dottedMag);
 	}
 
 	info.overlapAmount = smallestDepth;

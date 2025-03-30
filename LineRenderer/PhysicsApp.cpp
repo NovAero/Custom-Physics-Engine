@@ -21,35 +21,60 @@ PhysicsApp::~PhysicsApp()
 
 void PhysicsApp::Initialise()
 {
-	player = new Actor(Vec2{ 100.f,4.f }, ObjectShape::CIRCLE, Vec2{5,15});
+	player = new Actor(Vec2{ 100.f,4.f }, ObjectShape::CIRCLE, Vec2{ 4,5 });
 	player->colour = Colour::GREEN;
-	player->GetCollider().surfaceFriction = 0.5f;
 	player->GetCollider().invMass = 5.f;
 
 	objects.push_back(player);
 
-	objects.push_back(new Actor(Vec2{ 0.f, -100.f }, ObjectShape::POLYGON, Vec2{ 7, 50 }));
-	objects[1]->GetCollider().surfaceFriction = 0.7f;
+	objects.push_back(new Actor(Vec2{ 0.f, -100.f }, ObjectShape::RECT, Vec2{ 50, 5 }));
 	objects[1]->SetInverseMass(0.f);
 	objects[1]->GetRigidBody().SetIsStatic(true);
 
-	objects.push_back(new Actor(Vec2{ 20.f, -50.f }, ObjectShape::POLYGON, Vec2{ 3, 50 }));
-	objects[2]->GetCollider().surfaceFriction = 0.7f;
+	objects.push_back(new Actor(Vec2{ 25.f, -50.f }, ObjectShape::RECT, Vec2{ 5, 200 }));
 	objects[2]->SetInverseMass(0.f);
 	objects[2]->GetRigidBody().SetIsStatic(true);
 
-	objects.push_back(new Actor(Vec2{ -20.f, -50.f }, ObjectShape::RECT, Vec2{ 6, 100}));
-	objects[3]->GetCollider().surfaceFriction = 0.7f;
+	objects.push_back(new Actor(Vec2{ -25.f, -50.f }, ObjectShape::RECT, Vec2{ 5, 200 }));
 	objects[3]->SetInverseMass(0.f);
 	objects[3]->GetRigidBody().SetIsStatic(true);
 
-	for (float i = 1.f; i < 3; ++i) {
-		Actor* temp = new Actor(Vec2{ 1.f, i * 2 }, ObjectShape::CIRCLE, Vec2{ 6, 5 });
-		temp->GetCollider().surfaceFriction = 0.1f;
-		temp->GetRigidBody().SetElasticityPerc(0.5f);
+	for (int i = 1; i < 7; ++i) {
+		Actor* temp = new Actor(Vec2{ 0.f, 10.f + i * 2 }, ObjectShape::POLYGON, Vec2{ (float)(9 - i), 5 });
+
+		temp->GetCollider().invMass = 5.f;
 
 		objects.push_back(temp);
 	}
+
+	for (float i = -15.f; i < 20.f; i += 10.f) {
+		Actor* temp = new Actor(Vec2{ i, -30.f }, ObjectShape::CIRCLE, Vec2{ 6, 5 });
+		temp->GetCollider().invMass = 0.f;
+		temp->GetRigidBody().SetIsStatic(true);
+		temp->GetCollider().elasticity = 0.9f;
+
+		objects.push_back(temp);
+	}
+
+	for (float i = -10.f; i < 15.f; i += 10.f) {
+		Actor* temp = new Actor(Vec2{ i, -20.f }, ObjectShape::CIRCLE, Vec2{ 6, 5 });
+		temp->GetCollider().invMass = 0.f;
+		temp->GetRigidBody().SetIsStatic(true);
+
+		objects.push_back(temp);
+	}
+	for (float i = -5.f; i < 10.f; i += 10.f) {
+		Actor* temp = new Actor(Vec2{ i, -10.f }, ObjectShape::CIRCLE, Vec2{ 6, 5 });
+		temp->GetCollider().invMass = 0.f;
+		temp->GetRigidBody().SetIsStatic(true);
+		objects.push_back(temp);
+	}
+
+	Actor* temp = new Actor(Vec2{ 0.f, 0.f }, ObjectShape::CIRCLE, Vec2{ 6, 5 });
+	temp->GetCollider().invMass = 0.f;
+	temp->GetRigidBody().SetIsStatic(true);
+
+	objects.push_back(temp);
 }
 
 void PhysicsApp::Update(float delta)
@@ -133,7 +158,7 @@ void PhysicsApp::OnLeftClick()
 {
 	player->SetPosition(cursorPos);
 	player->GetRigidBody().SetVelocity(Vec2{ 0,0 });
-	player->GetRigidBody().SetIsDirty(false);
+	player->GetRigidBody().SetActive(false);
 }
 
 void PhysicsApp::OnRightClick()
@@ -149,8 +174,7 @@ void PhysicsApp::OnRightRelease()
 	player->SetPosition(player->GetWorldPosition() + Vec2{ Direction * 0.1f });
 
 	player->GetRigidBody().SetVelocity(Direction * launchMagnitude);
-	player->GetRigidBody().SetShouldApplyFriction(false);
-	player->GetRigidBody().SetIsDirty(true);
+	player->GetRigidBody().SetActive(true);
 
 	rightMouseDown = false;
 

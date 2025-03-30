@@ -52,7 +52,6 @@ public:
 	//Reference access
 	RigidBody& GetRigidBody() const;
 	Collider& GetCollider() const;
-	RigidBody& GetLastCollidedRb() const;
 
 private:
 

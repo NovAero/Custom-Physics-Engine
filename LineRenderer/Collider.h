@@ -14,11 +14,7 @@ public:
 	virtual Vec2 UpdatePos(Vec2 pos);
 	virtual void Rotate(float deg);
 
-	Collider* lastCollided;
-	Vec2 lastCollisionNormal;
-
-	float surfaceFriction = 0.5f; //Friction coefficient
-	float elasticity = 0.9f;
+	float elasticity = 0.6f;
 
 	Actor* parent = nullptr;
 	Vec2 position = { 0,0 };
