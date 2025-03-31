@@ -90,12 +90,8 @@ CollisionInfo CircleToPolyCollision(CircleCollider* a, PolygonCollider* b)
 	Vec2 overlapPointA;
 	Vec2 overlapPointB;
 
-	int smallestNormalIndex = INT_MAX;
-
 	for (int i = 0; i < normals.size(); ++i) {
 
-		Vec2 closestPoints[4];
-		
 		float aMin = FLT_MAX;
 		float aMax = -FLT_MAX;
 		float bMin = FLT_MAX;
@@ -105,21 +101,16 @@ CollisionInfo CircleToPolyCollision(CircleCollider* a, PolygonCollider* b)
 		aMax = Dot(a->position + (normals[i] * a->radius), normals[i]);
 		aMin = Dot(a->position + (-normals[i] * a->radius), normals[i]);
 
-		closestPoints[0] = a->position + (-normals[i] * a->radius);
-		closestPoints[1] = a->position + (normals[i] * a->radius);
-
 		//B min and max
 		for (Vec2 currentPoint : bPoints) {
 			float projection = Dot(currentPoint, normals[i]);
 
 			if (projection < bMin) {
 				bMin = projection;
-				closestPoints[2] = currentPoint;
 			}
 			
 			if (projection > bMax) {
 				bMax = projection;
-				closestPoints[3] = currentPoint;
 			}
 		}
 
@@ -130,50 +121,16 @@ CollisionInfo CircleToPolyCollision(CircleCollider* a, PolygonCollider* b)
 		if (overlapA < smallestDepth) {
 			smallestDepth = overlapA;
 			smallestDepthNormal = normals[i];
-			smallestNormalIndex = i;
-			overlapPointA = closestPoints[1];
-			overlapPointB = closestPoints[2];
 		} 
 		if (overlapB < smallestDepth) {
 			smallestDepth = overlapB;
 			smallestDepthNormal = -normals[i];
-			smallestNormalIndex = i;
-			overlapPointB = closestPoints[3];
-			overlapPointA = closestPoints[0];
 		}		
 	}
 
 	if (smallestDepth == FLT_MAX) { //in case of breaks in positional data
 		smallestDepth = -1.f;
 		smallestDepthNormal = { 0,1 };
-	}
-	
-	//With two closest points and smallest normal, rotate normal back to a point to point
-	//directional and dot against it to get collision point on edge
-	if (smallestNormalIndex < bPoints.size()) {
-		//if normal is coming from a, overlapPointA will be a vertex
-		Vec2 direction = smallestDepthNormal.GetRotatedBy270();
-
-		//Get the dot between the distance a to b point on the normal rotated to tangent
-		float dottedMag = Dot(overlapPointA, direction) - Dot(overlapPointB, direction);
-
-	}
-	else {
-		//if normal is coming from b, overlapPointB will be a vertex
-		Vec2 direction = smallestDepthNormal.GetRotatedBy270();
-
-		//Get the dot between the distance b to a point on the normal rotated to tangent
-		float dottedMag = Dot(overlapPointA, direction) - Dot(overlapPointB, direction);
-
-	}
-
-	//if smallest normal index has overflowed to above b's point count, clamp it for checks (dont need it for contact points anymore)
-	smallestNormalIndex = smallestNormalIndex > bPoints.size() - 1 ? bPoints.size() - 1 : smallestNormalIndex;
-
-	//if the distance between aMax and the closest point is small enough to return wacky collision, clamp it to -0.01f;
-	//This stops the circles from "gripping" to the edges in between delta steps
-	if (((a->position + (smallestDepthNormal * a->radius)) - bPoints[smallestNormalIndex]).GetMagnitude() < 0.09f) {
-		smallestDepth = -0.09f;
 	}
 
 	info.overlapAmount = smallestDepth;
@@ -207,7 +164,6 @@ CollisionInfo PolyToPolyCollision(PolygonCollider* a, PolygonCollider* b)
 	}
 
 	float smallestDepth = FLT_MAX;
-	int smallestNormalIndex = INT_MAX;
 	Vec2 smallestDepthNormal;
 
 	Vec2 overlapPointA;
@@ -216,8 +172,6 @@ CollisionInfo PolyToPolyCollision(PolygonCollider* a, PolygonCollider* b)
 	//Find projections on a
 	for (int i = 0; i < normals.size(); ++i) {
 
-		Vec2 closestPoints[4];
-		
 		float aMin = FLT_MAX;
 		float aMax = -FLT_MAX;
 		float bMin = FLT_MAX;
@@ -229,11 +183,9 @@ CollisionInfo PolyToPolyCollision(PolygonCollider* a, PolygonCollider* b)
 
 			if (projection < aMin) {
 				aMin = projection;
-				closestPoints[0] = currentPoint;
 			}
 			if (projection > aMax) {
 				aMax = projection;
-				closestPoints[1] = currentPoint;
 			}
 		}
 		//B min and max
@@ -242,11 +194,9 @@ CollisionInfo PolyToPolyCollision(PolygonCollider* a, PolygonCollider* b)
 
 			if (projection < bMin) {
 				bMin = projection;
-				closestPoints[2] = currentPoint;
 			}
 			if (projection > bMax) {
 				bMax = projection;
-				closestPoints[3] = currentPoint;
 			}
 		}
 
@@ -257,36 +207,11 @@ CollisionInfo PolyToPolyCollision(PolygonCollider* a, PolygonCollider* b)
 		if (overlapA < smallestDepth) {
 			smallestDepth = overlapA;
 			smallestDepthNormal = normals[i];
-			smallestNormalIndex = i;
-			overlapPointA = closestPoints[1];
-			overlapPointB = closestPoints[2];
 		}
 		if (overlapB < smallestDepth) {
 			smallestDepth = overlapB;
 			smallestDepthNormal = -normals[i];
-			smallestNormalIndex = i;
-			overlapPointB = closestPoints[3];
-			overlapPointA = closestPoints[0];
 		}
-	}
-
-	//With two closest points and smallest normal, rotate normal back to a point to point
-	//directional and dot against it to get collision point on edge
-	if (smallestNormalIndex < a->GetEdgeNormals().size()) { 
-		//if normal is coming from a, overlapPointA will be a vertex
-		Vec2 direction = smallestDepthNormal.GetRotatedBy270();
-
-		//Get the dot between the distance a to b point on the normal rotated to tangent
-		float dottedMag = Dot(overlapPointA, direction) - Dot(overlapPointB, direction);
-
-	}
-	else {
-		//if normal is coming from b, overlapPointB will be a vertex
-		Vec2 direction = smallestDepthNormal.GetRotatedBy270();
-
-		//Get the dot between the distance b to a point on the normal rotated to tangent
-		float dottedMag = Dot(overlapPointA, direction) - Dot(overlapPointB, direction);
-
 	}
 
 	info.overlapAmount = smallestDepth;
@@ -320,7 +245,7 @@ Vec2 FindClosestPoint(std::vector<Vec2> points, Vec2 point)
 void FindClosestPoints(std::vector<Vec2> points, Vec2 point, Vec2& firstClosest, Vec2& secondClosest)
 {
 	float first = FLT_MAX;
-	float second;
+	float second = FLT_MAX;
 
 	for (Vec2 currentPoint : points) {
 		float distSqr = (currentPoint - point).GetMagnitudeSquared();
