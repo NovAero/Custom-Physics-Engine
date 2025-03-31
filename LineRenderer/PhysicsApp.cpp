@@ -23,7 +23,7 @@ void PhysicsApp::Initialise()
 {
 	player = new Actor(Vec2{ 100.f,4.f }, ObjectShape::CIRCLE, Vec2{ 4,5 });
 	player->colour = Colour::GREEN;
-	player->GetCollider().invMass = 5.f;
+	player->GetRigidBody().SetInverseMass(5.f);
 
 	objects.push_back(player);
 
@@ -42,14 +42,13 @@ void PhysicsApp::Initialise()
 	for (int i = 1; i < 7; ++i) {
 		Actor* temp = new Actor(Vec2{ 0.f, 10.f + i * 2 }, ObjectShape::POLYGON, Vec2{ (float)(9 - i), 5 });
 
-		temp->GetCollider().invMass = 5.f;
+		temp->GetRigidBody().SetInverseMass(5.f);
 
 		objects.push_back(temp);
 	}
 
 	for (float i = -15.f; i < 20.f; i += 10.f) {
 		Actor* temp = new Actor(Vec2{ i, -30.f }, ObjectShape::CIRCLE, Vec2{ 6, 5 });
-		temp->GetCollider().invMass = 0.f;
 		temp->GetRigidBody().SetIsStatic(true);
 		temp->GetCollider().elasticity = 0.9f;
 
@@ -58,20 +57,17 @@ void PhysicsApp::Initialise()
 
 	for (float i = -10.f; i < 15.f; i += 10.f) {
 		Actor* temp = new Actor(Vec2{ i, -20.f }, ObjectShape::CIRCLE, Vec2{ 6, 5 });
-		temp->GetCollider().invMass = 0.f;
 		temp->GetRigidBody().SetIsStatic(true);
 
 		objects.push_back(temp);
 	}
 	for (float i = -5.f; i < 10.f; i += 10.f) {
 		Actor* temp = new Actor(Vec2{ i, -10.f }, ObjectShape::CIRCLE, Vec2{ 6, 5 });
-		temp->GetCollider().invMass = 0.f;
 		temp->GetRigidBody().SetIsStatic(true);
 		objects.push_back(temp);
 	}
 
 	Actor* temp = new Actor(Vec2{ 0.f, 0.f }, ObjectShape::CIRCLE, Vec2{ 6, 5 });
-	temp->GetCollider().invMass = 0.f;
 	temp->GetRigidBody().SetIsStatic(true);
 
 	objects.push_back(temp);
@@ -91,8 +87,8 @@ void PhysicsApp::Update(float delta)
 
 	for (CollisionInfo& thisInfo : collisions)
 	{
-		lines->DrawLineWithArrow(thisInfo.colliderA->position, thisInfo.colliderA->position + thisInfo.collisionNormal * 5.0, Colour::RED, 0.3f);
-		lines->DrawLineWithArrow(thisInfo.colliderB->position, thisInfo.colliderB->position - thisInfo.collisionNormal * 5.0, Colour::RED, 0.3f);
+		//lines->DrawLineWithArrow(thisInfo.colliderA->position, thisInfo.colliderA->position + thisInfo.collisionNormal * 5.0, Colour::RED, 0.3f);
+		//lines->DrawLineWithArrow(thisInfo.colliderB->position, thisInfo.colliderB->position - thisInfo.collisionNormal * 5.0, Colour::RED, 0.3f);
 		thisInfo.Resolve();
 	}
 
@@ -115,7 +111,7 @@ void PhysicsApp::Update(float delta)
 
 void PhysicsApp::QueueCollision(Collider* a, Collider* b)
 {
-	if (a->invMass == 0.f && b->invMass == 0.f) return;
+	if (a->parent->GetRigidBody().GetInverseMass() == 0.f && b->parent->GetRigidBody().GetInverseMass() == 0.f) return;
 
 	CollisionInfo thisHit;
 

@@ -1,11 +1,10 @@
 #include "Collider.h"
 #include "Actor.h"
 
-Collider::Collider(Actor* parent, float inverseMass)
+Collider::Collider(Actor* parent)
 {
 	this->parent = parent;
 	position = parent->GetWorldPosition();
-	this->invMass = inverseMass;
 }
 
 Collider::~Collider()
@@ -25,13 +24,13 @@ void Collider::Rotate(float deg)
 }
 
 
-CircleCollider::CircleCollider(Actor* parent, Vec2 position, float radius, float inverseMass) : Collider(parent, inverseMass)
+CircleCollider::CircleCollider(Actor* parent, Vec2 position, float radius) : Collider(parent)
 {
 	this->position = position;
 	this->radius = radius;
 }
 
-BoxCollider::BoxCollider(Actor* parent, Vec2 position, Vec2 dimensions, float inverseMass) : PolygonCollider(parent, inverseMass)
+BoxCollider::BoxCollider(Actor* parent, Vec2 position, Vec2 dimensions) : PolygonCollider(parent)
 {
 	this->position = position;
 	this->dimensions = dimensions;
@@ -52,11 +51,11 @@ Vec2 BoxCollider::UpdatePos(Vec2 pos)
 	return position;
 }
 
-PolygonCollider::PolygonCollider(Actor* parent, float inverseMass) : Collider(parent, inverseMass)
+PolygonCollider::PolygonCollider(Actor* parent) : Collider(parent)
 {
 }
 
-PolygonCollider::PolygonCollider(Actor* parent, Vec2 position, int numPoints, float inverseMass) : PolygonCollider(parent, inverseMass)
+PolygonCollider::PolygonCollider(Actor* parent, Vec2 position, int numPoints) : PolygonCollider(parent)
 {
 	//Angles to rotate around for a perfect shape
 	float cosAngle = cosf(2 * PI / numPoints);
@@ -77,11 +76,10 @@ PolygonCollider::PolygonCollider(Actor* parent, Vec2 position, int numPoints, fl
 	ConstructPoints(plotPoints);
 }
 
-PolygonCollider::PolygonCollider(Actor* parent, Vec2 position, std::vector<Vec2> points, float inverseMass) : Collider(parent, inverseMass)
+PolygonCollider::PolygonCollider(Actor* parent, Vec2 position, std::vector<Vec2> points) : Collider(parent)
 {
 	this->position = position;
 	ConstructPoints(points);
-	invMass = inverseMass;
 }
 
 Vec2 PolygonCollider::UpdatePos(Vec2 pos)

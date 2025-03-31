@@ -4,7 +4,6 @@
 
 class LineRenderer;
 class RigidBody;
-class CircleCollider;
 class Collider;
 
 enum ObjectShape

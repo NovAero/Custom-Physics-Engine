@@ -34,50 +34,43 @@ void RigidBody::Update(float delta, Vec2 cursorPos)
 { 
 	if (isStatic) return;
 	if (isActive) {
-		HandleResistances(delta);
 
-		if (currentVelocity.GetMagnitude() >= maxMagnitude) {
-			currentVelocity.SetMagnitude(maxMagnitude);
-		}
-		parent->actorPosition += currentVelocity * currentVelocity.GetMagnitude() * delta;
+		ApplyDrag();
+		currentVelocity += forceAccumulator * delta * invMass;
+		forceAccumulator = Vec2();
+
+		currentVelocity.y -= GRAVITY * delta;
+		parent->actorPosition += currentVelocity * delta;
 	}
 }
 
 void RigidBody::ApplyImpulse(Vec2 direction, float magnitude)
 {
-	currentVelocity += direction * magnitude;
+	currentVelocity += direction * magnitude * invMass;
 	SetActive(true);
 }
 
 void RigidBody::ApplyImpulse(Vec2 impulse)
 {
-	currentVelocity += impulse;
+	currentVelocity += impulse * invMass; //TODO move mass properties to rigid body class
 	SetActive(true);
 }
 
-void RigidBody::ApplyConstantForce(Vec2 direction, float magnitude, float& timer, float& currentTime, float delta)
+void RigidBody::ApplyForce(Vec2 force)
 {
-	if (currentTime >= timer) {
-		//if force would go beyond terminal currentVelocity, set to max magnitude
-		currentVelocity = direction * magnitude;
-	}
-	else {
-		currentTime += delta;
-	}
+	forceAccumulator += force;
 }
+
 
 void RigidBody::SetVelocity(Vec2 vel)
 {
 	currentVelocity = vel;
 }
 
-void RigidBody::HandleResistances(float delta)
+void RigidBody::ApplyDrag()
 {
+	ApplyForce(-currentVelocity * drag);
 
-	if (currentVelocity.x > 0.25) {
-		ApplyImpulse(-currentVelocity.GetNormalised() * drag * delta);
-	}
-	currentVelocity.y -= GRAVITY * delta;
 }
 
 void RigidBody::Stop()
