@@ -7,18 +7,22 @@ void CollisionInfo::Resolve()
 {
 	if (!IsOverlapping()) return;
 
-	float totalInvMass = colliderA->invMass + colliderB->invMass;
-	float totalSpeed = colliderA->parent->GetCurrentSpeed() + colliderB->parent->GetCurrentSpeed();
+	float aInvMass = colliderA->parent->GetRigidBody().GetInverseMass();
+	float bInvMass = colliderB->parent->GetRigidBody().GetInverseMass();
+
+	float totalInvMass = aInvMass + bInvMass;
+	Vec2 relVelocity = colliderA->parent->GetCurrentVelocity() - colliderB->parent->GetCurrentVelocity();
+
+	colliderB->parent->SetPosition((colliderB->position) + collisionNormal * overlapAmount * bInvMass / totalInvMass);
+	colliderA->parent->SetPosition((colliderA->position) - collisionNormal * overlapAmount * aInvMass / totalInvMass);
+	
+	float j = (-(1 + 0.5) * Dot(relVelocity, collisionNormal) / totalInvMass);
 
 	//Depenetrate
 	//Collider B
-	if (colliderB->invMass != 0.f) {
-		colliderB->parent->SetPosition((colliderB->position) + collisionNormal * overlapAmount * colliderB->invMass / totalInvMass);
-		colliderB->parent->GetRigidBody().ApplyImpulse(collisionNormal, totalSpeed / colliderB->invMass);
-	}
+	colliderB->parent->GetRigidBody().ApplyImpulse(-collisionNormal, j);
+	
 	//Collider A
-	if (colliderA->invMass != 0.f) {
-		colliderA->parent->SetPosition((colliderA->position) - collisionNormal * overlapAmount * colliderA->invMass / totalInvMass);
-		colliderA->parent->GetRigidBody().ApplyImpulse(-collisionNormal, totalSpeed / colliderA->invMass);
-	}
+	colliderA->parent->GetRigidBody().ApplyImpulse(collisionNormal, j);
+	
 }

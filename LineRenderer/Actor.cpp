@@ -3,13 +3,13 @@
 #include "RigidBody.h"
 #include "Collider.h"
 
-bool debug = true;
+bool debug = false;
 
 Actor::Actor()
 {
 	rb = new RigidBody();
 	rb->parent = this;
-	collider = new Collider(this, 0.f);
+	collider = new Collider(this);
 }
 
 Actor::Actor(Vec2 pos, ObjectShape shape, Vec2 drawSize)
@@ -175,7 +175,7 @@ Vec2 Actor::GetRbSize() const
 
 void Actor::SetInverseMass(float inverseMass)
 {
-	collider->invMass = inverseMass;
+	rb->invMass = inverseMass;
 }
 
 void Actor::SetPosition(Vec2 pos)
@@ -199,11 +199,11 @@ void Actor::SetColliderByEnum(ObjectShape shape)
 {
 	switch (shape) {
 	case CIRCLE:
-		collider = new CircleCollider(this, actorPosition, drawSize.y / 2, drawSize.y / PI);
+		collider = new CircleCollider(this, actorPosition, drawSize.y / 2);
 		break;
 
 	case RECT:
-		collider = new BoxCollider(this, actorPosition, drawSize, drawSize.x / drawSize.y);
+		collider = new BoxCollider(this, actorPosition, drawSize);
 		break;
 
 	case TRIANGLE:
@@ -214,7 +214,7 @@ void Actor::SetColliderByEnum(ObjectShape shape)
 		temp.push_back(Vec2(actorPosition.x, actorPosition.y + drawSize.y / 2));
 		temp.push_back(Vec2(actorPosition.x + drawSize.x / 2, actorPosition.y - drawSize.y / 2));
 
-		collider = new PolygonCollider(this, actorPosition, temp, 0.5f * (drawSize.x/drawSize.y));
+		collider = new PolygonCollider(this, actorPosition, temp);
 		break;
 	}
 	case LINE:
@@ -225,12 +225,12 @@ void Actor::SetColliderByEnum(ObjectShape shape)
 
 		drawSize.y = 0.1f;
 
-		collider = new PolygonCollider(this, actorPosition, temp, 0.f);
+		collider = new PolygonCollider(this, actorPosition, temp);
 		break;
 	}
 	case POLYGON:
 	{
-		collider = new PolygonCollider(this, actorPosition, (int)drawSize.x, drawSize.y * drawSize.y);
+		collider = new PolygonCollider(this, actorPosition, (int)drawSize.x);
 		break;
 	}
 	}
